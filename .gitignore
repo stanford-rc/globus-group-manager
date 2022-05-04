@@ -1,0 +1,19 @@
+# Ignore dotenv file
+.env
+
+# Ignore venv stuff
+bin
+lib
+pyvenv.cfg
+
+# Ignore editor files
+*.swp
+*~
+
+# Ignore keys, certs, etc.
+*.csr
+*.key
+*.pem
+
+# Ignore built docs
+docs/_build
