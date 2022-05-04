@@ -10,6 +10,9 @@ pyvenv.cfg
 dist
 *.egg-info
 
+# Ignore Python temp files
+__pycache__
+
 # Ignore editor files
 *.swp
 *~
