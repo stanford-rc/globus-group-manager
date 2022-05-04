@@ -36,14 +36,14 @@ jobs:
       - name: Build
         uses: ammaraskar/sphinx-action@0.4
         with:
-          docs-folder: docs/
+          docs-folder: "docs/"
           pre-build-command: "pip install .[docs]"
 
       # Upload the artifact.
       - name: Upload
         uses: actions/upload-artifact@v1
         with:
-          name: DocumentationHTML
-          path: docs/_build/html
+          name: "DocumentationHTML"
+          path: "docs/_build/html"
 
       # We'll deploy at some point!
