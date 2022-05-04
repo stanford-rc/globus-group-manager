@@ -6,6 +6,10 @@ bin
 lib
 pyvenv.cfg
 
+# Ignore packaging stuff
+dist
+*.egg-info
+
 # Ignore editor files
 *.swp
 *~
