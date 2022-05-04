@@ -1,0 +1,38 @@
+name: Docs
+
+on:
+  push:
+    branches:
+      - main1
+
+jobs:
+  # This job will eventually build the docs and deploy to GitHub Pages.
+  # But for now, let's just get the build part working!
+  docs:
+    # A tip from https://github.com/marketplace/actions/deploy-to-github-pages
+    # Make sure multiple docs builds aren't happening at the same time.
+    concurrency: docs-${{ github.ref }}
+
+    # Run this on Ubuntu
+    runs-on: ubuntu-latest
+
+    steps:
+      # As always, start with a checkout.
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Build the docs with Sphinx.
+      - name: Build
+        uses: ammaraskar/sphinx-action@0.4
+        with:
+          docs-folder: docs/
+          pre-build-command: "pip install .[docs]"
+
+      # Upload the artifact.
+      - name: Upload
+        uses: actions/upload-artifact@v1
+        with:
+          name: DocumentationHTML
+          path: docs/_build/html
+
+      # We'll deploy at some point!
