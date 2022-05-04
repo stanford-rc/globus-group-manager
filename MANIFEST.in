@@ -1,0 +1,14 @@
+# This is a MANIFEST.in file!
+# It lists things that should be in the source distribution, but are not
+# included by default.
+
+# See https://packaging.python.org/en/latest/guides/using-manifest-in/ to learn
+# what things are included in source distributions by default.
+
+# Include documentation with the source distribution
+# (but don't include build artifacts)
+recursive-include docs *
+recursive-exclude docs/_build *
+
+# Exclude .DS_Store files made by macOS
+global-exclude *.DS_Store
