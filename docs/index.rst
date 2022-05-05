@@ -2,6 +2,8 @@
    :maxdepth: 2
    :caption: Contents:
 
+   configuration
+
 .. include:: ../README.rst
 
 Indices and tables
