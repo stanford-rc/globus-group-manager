@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stanford Globus Group Manager &mdash; Stanford Globus Group Manager  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="#" class="icon icon-home"> Stanford Globus Group Manager
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Stanford Globus Group Manager</a><ul>
+<li><a class="reference internal" href="#goals">Goals</a><ul>
+<li><a class="reference internal" href="#non-goals">Non-Goals</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#major-version">Major Version</a></li>
+<li><a class="reference internal" href="#copyright-license">Copyright &amp; License</a></li>
+<li><a class="reference internal" href="#configuration">Configuration</a><ul>
+<li><a class="reference internal" href="#required-variables">Required Variables</a></li>
+<li><a class="reference internal" href="#optional-variables">Optional Variables</a></li>
+<li><a class="reference internal" href="#hard-coded-variables">Hard-Coded Variables</a></li>
+<li><a class="reference internal" href="#value-formats">Value Formats</a></li>
+<li><a class="reference internal" href="#env-file">.env File</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#installation">Installation</a><ul>
+<li><a class="reference internal" href="#virtualenv">Virtualenv</a><ul>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">Stanford Globus Group Manager</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+      <li>Stanford Globus Group Manager</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="stanford-globus-group-manager">
+<h1>Stanford Globus Group Manager<a class="headerlink" href="#stanford-globus-group-manager" title="Permalink to this headline"></a></h1>
+<p>The Stanford Globus Group Manager (SGGM) is used to create <a class="reference external" href="https://www.globus.org/platform/services/groups">Globus Groups</a>,
+create matching <a class="reference external" href="https://uit.stanford.edu/service/workgroup">Stanford Workgroups</a>, and keep the former’s membership in
+sync with the latter.  These are known as “Workgroup-linked Globus Groups”,
+“linked Globus Groups”, or simply “linked groups”.</p>
+<section id="goals">
+<h2>Goals<a class="headerlink" href="#goals" title="Permalink to this headline"></a></h2>
+<p>SGGM has the following goals.</p>
+<ul class="simple">
+<li><p><strong>Support creation by Stanford users.</strong>
+Groups may be created by anyone with a valid SUNetID.
+I am also considering making “… trusted Confidential Clients” part of
+the goal.  This would allow for Globus Confidential Clients to create linked
+groups</p></li>
+<li><p><strong>Workgroups are the source of truth for membership.</strong>
+When a Globus Group is synced, by the end of the sync, the only members of
+the Globus Group will be members of the Workgroup, along with any
+Confidential Clients that are administrators.  Globus Group members will be
+added and removed as needed to bring it in sync with the Workgroup.</p></li>
+<li><p><strong>Globus Groups are the source of truth for Workgroup descriptions.</strong>
+The Workgroup description will be pulled from the Globus Group’s short
+description, with the Globus Group’s UUID added.</p></li>
+<li><p><strong>Globus Groups are updated every 30 minutes.</strong>
+Changes to Workgroup membership are reflected in the Globus Group’s
+membership within 30 minutes of the Workgroup change, assuming all systems
+are operating normally.  This is in line with other UIT-provided batch
+services, such as DNS.</p></li>
+</ul>
+<section id="non-goals">
+<h3>Non-Goals<a class="headerlink" href="#non-goals" title="Permalink to this headline"></a></h3>
+<p>SGGM has a number of non-goals, set intentionally.</p>
+<ul>
+<li><p><strong>Globus Group membership only comes from Workgroup membership.</strong>
+Other than the Globus Confidential Client for the SGGM service, and possibly
+other Confidential Clients, the only members of the Globus Group will be the
+members of the workgroup.  If another person is somehow added to the Globus
+Group, that person would be removed during the next sync with the Workgroup.</p>
+<p>If you want to give non-SUNetIDs access to something via a Group, you will
+need to make your own Globus Group to hold those non-SUNetID members.  Most
+parts of Globus that allow Globus Groups will allow multiple Globus Groups.</p>
+</li>
+<li><p><strong>Workgroup names are controlled by SGGM; only one stem is used.</strong>
+SGGM needs some way to ensure that it is looking at the correct Workgroup.
+The unique identifier for workgroups is the workgroup’s name.  So, SGGM has
+full control over what name it gives to the Workgroup.</p>
+<p>Also, linked groups only exist within one Workgroup stem, <code class="docutils literal notranslate"><span class="pre">globus:</span></code>.  This
+is to limit the parts of Workgroup Manager that need to be searched for
+workgroups and changes.</p>
+<p>In the future, if Globus Groups is made into a fully-supported integration,
+this non-goal will be removed.</p>
+</li>
+<li><p><strong>One workgroup per Globus Group.</strong>
+Each Globus Group is synced to only one Workgroup.  This matches how other
+integration work.</p></li>
+<li><p><strong>Globus Groups are not synced in real-time.</strong>  There is currently no support
+for SGGM being notified whenever a Workgroup changes.  So, SGGM cannot
+receive real-time notice of Workgroups updating.</p></li>
+</ul>
+</section>
+</section>
+<section id="major-version">
+<h2>Major Version<a class="headerlink" href="#major-version" title="Permalink to this headline"></a></h2>
+<p>SGGM will exist in three major versions.</p>
+<ul>
+<li><p><strong>SGGM version 1</strong> is this version.  The <code class="docutils literal notranslate"><span class="pre">main1</span></code> branch contains the latest
+code for this series.</p></li>
+<li><p><strong>SGGM version 2</strong> will be similar to version 1, but will support being
+notified of Workgroup changes in real-time.  The non-goal for real-time
+updating will disappear, and the goal for changes to be applied every 30
+minutes will also change.</p>
+<p>This requires work on the Workgroups side to send ‘workgroup changed’
+notifications to SGGM.</p>
+<p>When SGGM version 2 work begins, it will take place in the <code class="docutils literal notranslate"><span class="pre">main2</span></code> branch.
+Eventually the <code class="docutils literal notranslate"><span class="pre">main1</span></code> branch will be archived, and stop receiving updates.</p>
+</li>
+<li><p><strong>SGGM version 3</strong> will be a major change to SGGM.  With SGGM version 3, SGGM
+will no longer exist as a separate product that users interact with.
+Instead, users would request a Globus Groups integration through Workgroup
+Manager.  The Workgroup would become the source of truth for Globus Group
+name, description, and membership.</p>
+<p>It is entirely possible that SGGM version 3 will not exist as a downloadable
+product.  Instead, it is likely to be integrated as part of Stanford’s
+Workgroup Manager and related systems.  If that happens, this entire
+repository will be archived.</p>
+</li>
+</ul>
+</section>
+<section id="copyright-license">
+<h2>Copyright &amp; License<a class="headerlink" href="#copyright-license" title="Permalink to this headline"></a></h2>
+<p>The contents of this repository are © 2022 The Board of Trustees of the Leland
+Stanford Junior University.</p>
+<p>This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU Affero General Public License as published by the Free
+Software Foundation, version 3.</p>
+<p>This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
+details.</p>
+<p>A copy of the GNU Affero General Public License should be in the <code class="docutils literal notranslate"><span class="pre">LICENSE</span></code>
+file in the root of this repository.  If not, see
+&lt;<a class="reference external" href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>&gt;.</p>
+<p>In addition, for the documentation, Permission is granted to copy, distribute
+and/or modify this document under the terms of the GNU Free Documentation
+License, Version 1.3; with no Invariant Sections, no Front-Cover Texts, and no
+Back-Cover Texts.  A copy of the license is included in the file named
+<code class="docutils literal notranslate"><span class="pre">LICENSE</span></code>, located in the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder.  If not, see
+&lt;<a class="reference external" href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>&gt;.</p>
+</section>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline"></a></h2>
+<p>Core configuration is provided through environment variables.  This section
+describes the environment variables which must be populated, and how the data
+may be stored or accessed.</p>
+<section id="required-variables">
+<h3>Required Variables<a class="headerlink" href="#required-variables" title="Permalink to this headline"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">WORKGROUP_STEM</span></code>: This is the name of the Workgroup stem that will be used to
+hold SGGM-created Workgroups.  The trailing colon must <em>not</em> be present.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">WORKGROUP_API_TIER</span></code>: The tier to use for the Workgroups API.  This can
+either be ‘PROD’ or ‘UAT’.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">WORKGROUP_API_KEY</span></code>: The private key used to connect to the Workgroups API.
+This key needs to be PEM-encoded, with no encryption passphrase.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">WORKGROUP_API_CERT</span></code>: The certificate—matching the private key set in
+<code class="docutils literal notranslate"><span class="pre">WORKGROUP_API_KEY</span></code>—to use for authenticating to the Workgroups API.  It
+must also be PEM-encoded.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GLOBUS_CLIENT_ID</span></code>: The ID of the Globus Auth Confidential Client used by
+this application.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GLOBUS_CLIENT_SECRET</span></code>: A Client Secret for the Globus Auth Confidential
+Client.</p></li>
+</ul>
+</section>
+<section id="optional-variables">
+<h3>Optional Variables<a class="headerlink" href="#optional-variables" title="Permalink to this headline"></a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">GLOBUS_PREFIX</span></code>: If present, this string will be included in created Globus
+Group names, and in Workgroup descriptions.  It is meant to denote
+non-production, so the convention is to leave this variable un-set in the
+producton environment.</p>
+<p>If set, the value will be uppercased and placed in square brackets at the
+start of the Globus Group’s name, in the format “[$prefix] …”.  In the
+Workgroup, it will be lowercased and placed at the start of the Workgroup
+description in the format “$prefix environment—“.</p>
+</li>
+</ul>
+</section>
+<section id="hard-coded-variables">
+<h3>Hard-Coded Variables<a class="headerlink" href="#hard-coded-variables" title="Permalink to this headline"></a></h3>
+<p>Some settings are hard-coded, because it is very unlikely that they will
+change.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">APPS_DOMAIN</span></code>: All Globus Identity usernames take the form of
+<code class="docutils literal notranslate"><span class="pre">user&#64;domain</span></code>.  Every Globus Auth Confidential Client has its own Globus
+Identity, in a common domain.  This setting holds that common domain.  Right
+now it is <code class="docutils literal notranslate"><span class="pre">clients.auth.globus.org</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DOMAIN</span></code>: Every Stanford person has a Globus Identity in a common domain.
+This setting holds that domain.  Right now it is <code class="docutils literal notranslate"><span class="pre">stanford.edu</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Stanford people who log in to Globus via Google will have an Identity username of the form <code class="docutils literal notranslate"><span class="pre">sunetid&#64;stanford.edu&#64;accounts.google.com</span></code>.  This setting does not recognize those Globus Identities as Stanford people, so clients will need to take care to check that users are logging in via “Stanford University”, not via SAML.</p>
+</div>
+</li>
+</ul>
+</section>
+<section id="value-formats">
+<h3>Value Formats<a class="headerlink" href="#value-formats" title="Permalink to this headline"></a></h3>
+<p>For some environment variables, it is not safe storing the actual value in the
+environment variable.  For this reason, all values are first parsed through
+Python’s <code class="docutils literal notranslate"><span class="pre">urlparse</span></code> function.  If a recognized scheme is found, the value of
+the environment variable is taken as a URL to find the variable’s <em>actual</em>
+value.</p>
+<p>The following schemes are recognized:</p>
+<ul>
+<li><p><strong>Files</strong>: If the scheme is <code class="docutils literal notranslate"><span class="pre">file</span></code>, the value is taken as a path to a file.</p>
+<p>The format is <code class="docutils literal notranslate"><span class="pre">file:path</span></code> for paths relative to the current working
+directory, and <code class="docutils literal notranslate"><span class="pre">file:/path</span></code> for absolute paths.</p>
+</li>
+<li><p><strong>Google Cloud Secrets</strong>: If the scheme is <code class="docutils literal notranslate"><span class="pre">gcs</span></code>, the value is taken from a
+Secret in Google Cloud Secret Manger.</p>
+<p>The format is <code class="docutils literal notranslate"><span class="pre">gcs://project/name?version</span></code>.  All three components are
+required, but you can use the special string “latest” to refer to the latest
+version of a specific Secret.</p>
+<p>This required that SGGM is built with the <code class="docutils literal notranslate"><span class="pre">gcs</span></code> option.</p>
+</li>
+</ul>
+</section>
+<section id="env-file">
+<h3>.env File<a class="headerlink" href="#env-file" title="Permalink to this headline"></a></h3>
+<p>In local installations, it is possible to put configuration into a local file,
+named <code class="docutils literal notranslate"><span class="pre">.env</span></code>.  That file should be placed in the project’s root directory
+(whatever that means for your installation).</p>
+<p>Here is an example dotenv file:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="na">GLOBUS_PREFIX</span><span class="o">=</span><span class="s">DEV</span><span class="w"></span>
+<span class="na">GLOBUS_CLIENT_ID</span><span class="o">=</span><span class="s">67a9fc42-cbe6-11ec-9a66-bb2cbd847dfd</span><span class="w"></span>
+<span class="na">GLOBUS_CLIENT_SECRET</span><span class="o">=</span><span class="s">gcs://myproject/globus?latest</span><span class="w"></span>
+
+<span class="na">WORKGROUP_STEM</span><span class="o">=</span><span class="s">globus</span><span class="w"></span>
+<span class="na">WORKGROUP_API_TIER</span><span class="o">=</span><span class="s">UAT</span><span class="w"></span>
+<span class="na">WORKGROUP_API_CERT</span><span class="o">=</span><span class="s">file:workgroup.pem</span><span class="w"></span>
+<span class="na">WORKGROUP_API_KEY</span><span class="o">=</span><span class="s">gcs://myproject/workgroup?latest</span><span class="w"></span>
+</pre></div>
+</div>
+<p>The contents of the “dotenv” file are read when the program is first started,
+and will be overridden by variables that are set in the actual environment.  In
+other words, if your dotenv file sets <code class="docutils literal notranslate"><span class="pre">GLOBUS_PREFIX</span></code> to “a”, and the OS
+environment sets it to “b”, the actual value used will be “b”.</p>
+<p>Both the dotenv file and the OS environment are read at program start only, so
+a full program restart is needed in order to pick up changes.</p>
+</section>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h2>
+<p>This program can be installed and run in multiple ways.</p>
+<section id="virtualenv">
+<h3>Virtualenv<a class="headerlink" href="#virtualenv" title="Permalink to this headline"></a></h3>
+<p>To install from a Python virtual environment, download a repository export to a
+local directory, create a venv, and install the code into that venv.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3.9 -m venv .
+. bin/activate
+pip install --upgrade pip
+pip install .
+</pre></div>
+</div>
+<p>As long as the venv is active in your shell, the <code class="docutils literal notranslate"><span class="pre">sggm</span></code> command will be
+available.</p>
+<p>In this situation, we suggest using a dotenv file to store configuration.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Use caution when working from a Git worktree (that is, the result of a <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span></code>.  Running in a Git worktree introduces the possibility of running unexpected code, or committing secrets.</p>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<section id="indices-and-tables">
+<h4>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline"></a></h4>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+</ul>
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, The Board of Trustees of the Leland Stanford Junior University.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
