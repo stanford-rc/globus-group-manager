@@ -104,6 +104,7 @@ gcs = [
     "Homepage" = "https://github.com/stanford-rc/globus-group-manager"
     "Bug Tracker" = "https://github.com/stanford-rc/globus-group-manager/issues"
     "Source Code" = "https://github.com/stanford-rc/globus-group-manager/tree/main1"
+    "Documentation" = "https://stanford-rc.github.io/globus-group-manager/"
 
 # Define the packages we install, and where to find them.
 
