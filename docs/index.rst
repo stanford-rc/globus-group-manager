@@ -2,6 +2,7 @@
    :maxdepth: 2
    :caption: Contents:
 
+   installation
    configuration
 
 .. include:: ../README.rst
