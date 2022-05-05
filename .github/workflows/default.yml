@@ -48,9 +48,34 @@ jobs:
           mkdir build
           sphinx-build -b html code/docs build
 
-      # Upload the artifact.
-      - name: Upload
-        uses: actions/upload-artifact@v1
+      # Check out gh-pages, update, and push
+      - name: Checkout gh-pages
+        uses: actions/checkout@v3
         with:
-          name: "DocumentationHTML"
-          path: "build"
+          ref: "gh-pages"
+          fetch-depth: 0
+          path: "gh-pages"
+
+      # The last action has a way to do a `git rm`, but I want that to happen
+      # before new content is copied in.  So, do the removal first.
+      # We remove everything.  Unchanged files will be copied back in, and Git
+      # is smart enough to recognize a remove-then-add no-op.
+      - name: Remove existing gh-pages content
+        working-directory: "gh-pages"
+        run: |
+          git rm -r *
+
+      - name: Install new content
+        run: |
+          cp -r build/* gh-pages/.
+
+      # With the content installed, commit and push!
+      - name: Commit and push gh-pages
+        uses: EndBug/add-and-commit@v9
+        with:
+          cwd: 'gh-pages'
+          add: '.'
+          default_author: github_actor
+          message: "Update GitHub Pages from commit XX"
+          push: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
