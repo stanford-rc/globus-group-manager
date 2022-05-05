@@ -102,6 +102,12 @@ SGGM will exist in three major versions.
   Workgroup Manager and related systems.  If that happens, this entire
   repository will be archived.
 
+Documentation
+-------------
+
+Documentation for the head of the currently-active branch may be found at
+`<https://stanford-rc.github.io/globus-group-manager/>`_.
+
 Copyright & License
 -------------------
 
