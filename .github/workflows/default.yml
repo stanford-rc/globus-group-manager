@@ -34,13 +34,15 @@ jobs:
         run: |
           python -m pip install --upgrade pip
       - name: Build and install package
+        working-directory: "code"
         run: |
-          python -m pip install code
+          python -m pip install .
 
       # Build the docs with Sphinx.
       - name: Install Sphinx
+        working-directory: "code"
         run: |
-          python -m pip install code[docs]
+          python -m pip install .[docs]
       - name: Build docs
         run: |
           mkdir build
