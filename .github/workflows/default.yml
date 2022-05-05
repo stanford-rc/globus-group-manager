@@ -76,7 +76,7 @@ jobs:
         with:
           cwd: 'gh-pages'
           add: '.'
-          default_author: github_actor
+          default_author: "github_actions"
           message: "Update GitHub Pages from commit {{ github.sha }}"
           push: true
           github_token: ${{ secrets.GITHUB_TOKEN }}
