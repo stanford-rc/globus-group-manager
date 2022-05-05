@@ -17,7 +17,8 @@
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installation" href="installation.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -35,34 +36,22 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">Stanford Globus Group Manager</a><ul>
-<li><a class="reference internal" href="#goals">Goals</a><ul>
-<li><a class="reference internal" href="#non-goals">Non-Goals</a></li>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#virtualenv">Virtualenv</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#major-version">Major Version</a></li>
-<li><a class="reference internal" href="#copyright-license">Copyright &amp; License</a></li>
-<li><a class="reference internal" href="#configuration">Configuration</a><ul>
-<li><a class="reference internal" href="#required-variables">Required Variables</a></li>
-<li><a class="reference internal" href="#optional-variables">Optional Variables</a></li>
-<li><a class="reference internal" href="#hard-coded-variables">Hard-Coded Variables</a></li>
-<li><a class="reference internal" href="#value-formats">Value Formats</a></li>
-<li><a class="reference internal" href="#env-file">.env File</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#installation">Installation</a><ul>
-<li><a class="reference internal" href="#virtualenv">Virtualenv</a><ul>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#required-variables">Required Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#optional-variables">Optional Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#hard-coded-variables">Hard-Coded Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#value-formats">Value Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#env-file">.env File</a></li>
 </ul>
 </li>
 </ul>
-</li>
-</ul>
-</li>
-</ul>
-</div>
+
         </div>
       </div>
     </nav>
@@ -87,7 +76,24 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="stanford-globus-group-manager">
+  <div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#virtualenv">Virtualenv</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#required-variables">Required Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#optional-variables">Optional Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#hard-coded-variables">Hard-Coded Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#value-formats">Value Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#env-file">.env File</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<section id="stanford-globus-group-manager">
 <h1>Stanford Globus Group Manager<a class="headerlink" href="#stanford-globus-group-manager" title="Permalink to this headline"></a></h1>
 <p>The Stanford Globus Group Manager (SGGM) is used to create <a class="reference external" href="https://www.globus.org/platform/services/groups">Globus Groups</a>,
 create matching <a class="reference external" href="https://uit.stanford.edu/service/workgroup">Stanford Workgroups</a>, and keep the former’s membership in
@@ -175,6 +181,11 @@ repository will be archived.</p>
 </li>
 </ul>
 </section>
+<section id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline"></a></h2>
+<p>Documentation for the head of the currently-active branch may be found at
+<a class="reference external" href="https://stanford-rc.github.io/globus-group-manager/">https://stanford-rc.github.io/globus-group-manager/</a>.</p>
+</section>
 <section id="copyright-license">
 <h2>Copyright &amp; License<a class="headerlink" href="#copyright-license" title="Permalink to this headline"></a></h2>
 <p>The contents of this repository are © 2022 The Board of Trustees of the Leland
@@ -196,144 +207,21 @@ Back-Cover Texts.  A copy of the license is included in the file named
 <code class="docutils literal notranslate"><span class="pre">LICENSE</span></code>, located in the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder.  If not, see
 &lt;<a class="reference external" href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>&gt;.</p>
 </section>
-<section id="configuration">
-<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline"></a></h2>
-<p>Core configuration is provided through environment variables.  This section
-describes the environment variables which must be populated, and how the data
-may be stored or accessed.</p>
-<section id="required-variables">
-<h3>Required Variables<a class="headerlink" href="#required-variables" title="Permalink to this headline"></a></h3>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">WORKGROUP_STEM</span></code>: This is the name of the Workgroup stem that will be used to
-hold SGGM-created Workgroups.  The trailing colon must <em>not</em> be present.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">WORKGROUP_API_TIER</span></code>: The tier to use for the Workgroups API.  This can
-either be ‘PROD’ or ‘UAT’.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">WORKGROUP_API_KEY</span></code>: The private key used to connect to the Workgroups API.
-This key needs to be PEM-encoded, with no encryption passphrase.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">WORKGROUP_API_CERT</span></code>: The certificate—matching the private key set in
-<code class="docutils literal notranslate"><span class="pre">WORKGROUP_API_KEY</span></code>—to use for authenticating to the Workgroups API.  It
-must also be PEM-encoded.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">GLOBUS_CLIENT_ID</span></code>: The ID of the Globus Auth Confidential Client used by
-this application.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">GLOBUS_CLIENT_SECRET</span></code>: A Client Secret for the Globus Auth Confidential
-Client.</p></li>
-</ul>
-</section>
-<section id="optional-variables">
-<h3>Optional Variables<a class="headerlink" href="#optional-variables" title="Permalink to this headline"></a></h3>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">GLOBUS_PREFIX</span></code>: If present, this string will be included in created Globus
-Group names, and in Workgroup descriptions.  It is meant to denote
-non-production, so the convention is to leave this variable un-set in the
-producton environment.</p>
-<p>If set, the value will be uppercased and placed in square brackets at the
-start of the Globus Group’s name, in the format “[$prefix] …”.  In the
-Workgroup, it will be lowercased and placed at the start of the Workgroup
-description in the format “$prefix environment—“.</p>
-</li>
-</ul>
-</section>
-<section id="hard-coded-variables">
-<h3>Hard-Coded Variables<a class="headerlink" href="#hard-coded-variables" title="Permalink to this headline"></a></h3>
-<p>Some settings are hard-coded, because it is very unlikely that they will
-change.</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">APPS_DOMAIN</span></code>: All Globus Identity usernames take the form of
-<code class="docutils literal notranslate"><span class="pre">user&#64;domain</span></code>.  Every Globus Auth Confidential Client has its own Globus
-Identity, in a common domain.  This setting holds that common domain.  Right
-now it is <code class="docutils literal notranslate"><span class="pre">clients.auth.globus.org</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">DOMAIN</span></code>: Every Stanford person has a Globus Identity in a common domain.
-This setting holds that domain.  Right now it is <code class="docutils literal notranslate"><span class="pre">stanford.edu</span></code>.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Stanford people who log in to Globus via Google will have an Identity username of the form <code class="docutils literal notranslate"><span class="pre">sunetid&#64;stanford.edu&#64;accounts.google.com</span></code>.  This setting does not recognize those Globus Identities as Stanford people, so clients will need to take care to check that users are logging in via “Stanford University”, not via SAML.</p>
-</div>
-</li>
-</ul>
-</section>
-<section id="value-formats">
-<h3>Value Formats<a class="headerlink" href="#value-formats" title="Permalink to this headline"></a></h3>
-<p>For some environment variables, it is not safe storing the actual value in the
-environment variable.  For this reason, all values are first parsed through
-Python’s <code class="docutils literal notranslate"><span class="pre">urlparse</span></code> function.  If a recognized scheme is found, the value of
-the environment variable is taken as a URL to find the variable’s <em>actual</em>
-value.</p>
-<p>The following schemes are recognized:</p>
-<ul>
-<li><p><strong>Files</strong>: If the scheme is <code class="docutils literal notranslate"><span class="pre">file</span></code>, the value is taken as a path to a file.</p>
-<p>The format is <code class="docutils literal notranslate"><span class="pre">file:path</span></code> for paths relative to the current working
-directory, and <code class="docutils literal notranslate"><span class="pre">file:/path</span></code> for absolute paths.</p>
-</li>
-<li><p><strong>Google Cloud Secrets</strong>: If the scheme is <code class="docutils literal notranslate"><span class="pre">gcs</span></code>, the value is taken from a
-Secret in Google Cloud Secret Manger.</p>
-<p>The format is <code class="docutils literal notranslate"><span class="pre">gcs://project/name?version</span></code>.  All three components are
-required, but you can use the special string “latest” to refer to the latest
-version of a specific Secret.</p>
-<p>This required that SGGM is built with the <code class="docutils literal notranslate"><span class="pre">gcs</span></code> option.</p>
-</li>
-</ul>
-</section>
-<section id="env-file">
-<h3>.env File<a class="headerlink" href="#env-file" title="Permalink to this headline"></a></h3>
-<p>In local installations, it is possible to put configuration into a local file,
-named <code class="docutils literal notranslate"><span class="pre">.env</span></code>.  That file should be placed in the project’s root directory
-(whatever that means for your installation).</p>
-<p>Here is an example dotenv file:</p>
-<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="na">GLOBUS_PREFIX</span><span class="o">=</span><span class="s">DEV</span><span class="w"></span>
-<span class="na">GLOBUS_CLIENT_ID</span><span class="o">=</span><span class="s">67a9fc42-cbe6-11ec-9a66-bb2cbd847dfd</span><span class="w"></span>
-<span class="na">GLOBUS_CLIENT_SECRET</span><span class="o">=</span><span class="s">gcs://myproject/globus?latest</span><span class="w"></span>
-
-<span class="na">WORKGROUP_STEM</span><span class="o">=</span><span class="s">globus</span><span class="w"></span>
-<span class="na">WORKGROUP_API_TIER</span><span class="o">=</span><span class="s">UAT</span><span class="w"></span>
-<span class="na">WORKGROUP_API_CERT</span><span class="o">=</span><span class="s">file:workgroup.pem</span><span class="w"></span>
-<span class="na">WORKGROUP_API_KEY</span><span class="o">=</span><span class="s">gcs://myproject/workgroup?latest</span><span class="w"></span>
-</pre></div>
-</div>
-<p>The contents of the “dotenv” file are read when the program is first started,
-and will be overridden by variables that are set in the actual environment.  In
-other words, if your dotenv file sets <code class="docutils literal notranslate"><span class="pre">GLOBUS_PREFIX</span></code> to “a”, and the OS
-environment sets it to “b”, the actual value used will be “b”.</p>
-<p>Both the dotenv file and the OS environment are read at program start only, so
-a full program restart is needed in order to pick up changes.</p>
-</section>
-</section>
-<section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h2>
-<p>This program can be installed and run in multiple ways.</p>
-<section id="virtualenv">
-<h3>Virtualenv<a class="headerlink" href="#virtualenv" title="Permalink to this headline"></a></h3>
-<p>To install from a Python virtual environment, download a repository export to a
-local directory, create a venv, and install the code into that venv.</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3.9 -m venv .
-. bin/activate
-pip install --upgrade pip
-pip install .
-</pre></div>
-</div>
-<p>As long as the venv is active in your shell, the <code class="docutils literal notranslate"><span class="pre">sggm</span></code> command will be
-available.</p>
-<p>In this situation, we suggest using a dotenv file to store configuration.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Use caution when working from a Git worktree (that is, the result of a <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span></code>.  Running in a Git worktree introduces the possibility of running unexpected code, or committing secrets.</p>
-</div>
-<div class="toctree-wrapper compound">
-</div>
 <section id="indices-and-tables">
-<h4>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline"></a></h4>
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline"></a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
 </ul>
 </section>
 </section>
-</section>
-</section>
 
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 
