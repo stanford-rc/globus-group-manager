@@ -60,10 +60,11 @@ jobs:
       # before new content is copied in.  So, do the removal first.
       # We remove everything.  Unchanged files will be copied back in, and Git
       # is smart enough to recognize a remove-then-add no-op.
-      - name: Remove existing gh-pages content
+      - name: Remove existing gh-pages content and re-add .nojekyll
         working-directory: "gh-pages"
         run: |
           git rm -r *
+          touch .nojekyll
 
       - name: Install new content
         run: |
