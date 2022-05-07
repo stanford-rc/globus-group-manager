@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 et
 
-# The ggm.cli module is used to implement CLI commands, which are run on the
-# server hosting SGGM.  Everything is accessed through one CLI command,
-# `stanford-globus-group-manager`, which is created in this file.  Sub-commands
-# are defined in sub-modules, imported, and then added to the top-level
-# command.
+# The `plumbing` commands are ones that should not be in regular use.  They are
+# meant to make development and testing easier.
 
 # © 2022, The Board of Trustees of the Leland Stanford Junior University.
 # 
@@ -22,18 +19,19 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
 import click
 from typing import *
 
-from ggm.cli.plumbing import plumbing_group
-from ggm.cli.scopes import scopes_group
 
 
-@click.group()
-@click.version_option()
-def main() -> None:
+
+@click.group('plumbing')
+def plumbing_group() -> None:
+    """Internal commands for testing and development.
+
+    These commands are not meant for normal, day-to-day use.  Instead, they are
+    meant to make development, testing, troubleshooting, and the like easier to
+    accomplish.  These commands provide direct access to many of the internal
+    functions of this package.
+    """
     pass
-
-main.add_command(plumbing_group)
-main.add_command(scopes_group)
