@@ -470,15 +470,18 @@ def add_members(
     for member in members:
         client.mapper.add(member)
 
-    # Split up the set of new members into batches.
-    # This is also where we do UUID resolution, and optional provisioning.
-    batches: list[list[UUID]] = list()
-    next_batch: list[UUID] = list()
+    # Go through all members, and try to look up Globus Identity IDs.
+    # Also track members that don't have an ID yet.
+    member_uuids: list[UUID] = list()
+    missing_members: list[str] = list()
+
+    # Get UUIDs for all members, and identify members with no UUID.
+    # If we find a member with no Globus Identity ID, possibly bail out.
     for member in members:
         try:
-            next_batch.append(client.mapper[member]['id'])
+            member_uuids.append(client.mapper[member]['id'])
         except KeyError:
-            pass
+            missing_members.append(member)
         except globus_sdk.GlobusAPIError as error:
             if error.http_status in (401, 403):
                 raise PermissionError(group_id)
@@ -489,7 +492,58 @@ def add_members(
         except globus_sdk.NetworkError as error:
             raise IOError(f"Network issue adding admins to Group '{description}'")
 
-        # Check if we should start up the next batch.
+    # If we have missing members, and we aren't provisioning, bail out.
+    if len(missing_members) > 0 and not provision:
+        raise KeyError(missing_members.pop())
+
+    # At this point, we either have no missing members, or we're provisioning.
+    if len(missing_members) > 0:
+        # We're going to have to do all this ourselves, since the Identity
+        # Mapper doesn't do provisioning.  That means we'll have to do our own
+        # batching.
+        provision_batches: list[list[str]] = list()
+        next_provision: list[str] = list()
+
+        # Split up missing_members into batches
+        for missing_member in missing_members:
+            next_provision.append(missing_member)
+            if len(next_provision) == BATCH_SIZE:
+                provision_batches.append(next_provision)
+                next_provision = list()
+
+        # Add the final batch to the list
+        provision_batches.append(next_provision)
+        del next_provision
+
+        # Do a provisioning lookup for each batch
+        for provision_batch in provision_batches:
+            try:
+                provision_response = client.auth.get_identities(
+                    usernames=provision_batch,
+                    provision=True,
+                )
+            except globus_sdk.GlobusAPIError as error:
+                if error.http_status == 400:
+                    raise KeyError(error.message)
+                if error.http_status in (401, 403):
+                    raise PermissionError(group_id)
+                if error.http_status == 500:
+                    raise IOError(f"Globus API transient error provisioning Globus Identities")
+                else:
+                    raise IOError(f"Unknown error provisioning Globus Identities")
+            except globus_sdk.NetworkError as error:
+                raise IOError(f"Network issue provisioning Globus Identities")
+
+            # Add the new IDs to the list
+            member_uuids.extend(u['id'] for u in provision_response['identities'])
+
+    # member_uuids is now complete!
+
+    # Split up the set of new members into batches.
+    batches: list[list[UUID]] = list()
+    next_batch: list[UUID] = list()
+    for member_uuid in member_uuids:
+        next_batch.append(member_uuid)
         if len(next_batch) == BATCH_SIZE:
             batches.append(next_batch)
             next_batch = set()
@@ -522,7 +576,7 @@ def add_members(
                 raise IOError(f"Unknown error adding admins to Group '{description}': {e.code}-{e.message}")
         except globus_sdk.NetworkError as error:
             raise IOError(f"Network issue adding admins to Group '{description}'")
-        if admin_response.http_status != 200:
-            raise IOErrorIOError(f"Unknown error adding admins to Group '{description}': {e.code}-{e.message}")
+        if member_response.http_status != 200:
+            raise IOError(f"Unknown error adding admins to Group '{description}': {e.code}-{e.message}")
 
     # All done!
