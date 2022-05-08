@@ -580,3 +580,97 @@ def add_members(
             raise IOError(f"Unknown error adding admins to Group '{description}': {e.code}-{e.message}")
 
     # All done!
+
+
+def remove_members(
+    client: GlobusClients,
+    group_id: UUID,
+    members: set[str],
+) -> None:
+    """Remove members from a Globus Group.
+
+    Given a set of Globus Identity usernames, remove them from the Globus
+    Group.  This operation is indempotent; if you remove someone who is already
+    removed, or was never in the Group, the operation will still succeed.
+    However the operation will fail if the username cannot be found.
+
+    @param client Globus clients.
+
+    @param members The set of member usernames to remove.
+
+    @raise KeyError One of the members could not be found in Globus.
+
+    @raise FileNotFoundError Group ID not found.
+
+    @raise PermissionError Permission error creating group.
+
+    @raise IOError Issue communicating with Globus APIs.
+    """
+
+    # How many additions can we make at once?
+    BATCH_SIZE = 100
+
+    # Add all of the members to our mapper
+    for member in members:
+        client.mapper.add(member)
+
+    # Go through all members, and try to look up Globus Identity IDs.
+    # Also track members that don't have an ID yet.
+    member_uuids: list[UUID] = list()
+
+    # Get UUIDs for all members, and identify members with no UUID.
+    for member in members:
+        try:
+            member_uuids.append(client.mapper[member]['id'])
+        except KeyError:
+            raise KeyError(member)
+        except globus_sdk.GlobusAPIError as error:
+            if error.http_status in (401, 403):
+                raise PermissionError(group_id)
+            if error.http_status == 500:
+                raise IOError(f"Globus API transient error removing users from Group '{group_id}'")
+            else:
+                raise IOError(f"Unknown error removing users from Group '{group_id}': {e.code}-{e.message}")
+        except globus_sdk.NetworkError as error:
+            raise IOError(f"Network issue removing users from Group '{group_id}'")
+
+    # Split up the set of new members into batches.
+    batches: list[list[UUID]] = list()
+    next_batch: list[UUID] = list()
+    for member_uuid in member_uuids:
+        next_batch.append(member_uuid)
+        if len(next_batch) == BATCH_SIZE:
+            batches.append(next_batch)
+            next_batch = set()
+
+    # Add the final batch to the list
+    batches.append(next_batch)
+    del next_batch
+
+    # Go through each batch, submitting requests!
+    for batch in batches:
+        # Create a request document.
+        member_request = globus_sdk.BatchMembershipActions()
+        member_request.remove_members(
+            identity_ids=batch,
+        )
+        try:
+            member_response = client.groups.batch_membership_action(
+                group_id=group_id,
+                actions=member_request,
+            )
+        except globus_sdk.GlobusAPIError as error:
+            if error.http_status == 404:
+                raise FileNotFoundError(group_id)
+            elif error.http_status in (401, 403):
+                raise PermissionError(group_id)
+            if error.http_status == 500:
+                raise IOError(f"Globus API transient error removing users from Group '{group_id}'")
+            else:
+                raise IOError(f"Unknown error removing users from Group '{group_id}': {error.code}-{error.message}")
+        except globus_sdk.NetworkError as error:
+            raise IOError(f"Network issue removing users from Group '{group_id}'")
+        if member_response.http_status != 200:
+            raise IOError(f"Unknown error removing users from Group '{group_id}': {error.code}-{error.message}")
+
+    # All done!
