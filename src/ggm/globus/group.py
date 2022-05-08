@@ -486,11 +486,11 @@ def add_members(
             if error.http_status in (401, 403):
                 raise PermissionError(group_id)
             if error.http_status == 500:
-                raise IOError(f"Globus API transient error adding admins to Group '{description}'")
+                raise IOError(f"Globus API transient error adding members to Group '{group_id}'")
             else:
-                raise IOError(f"Unknown error adding admins to Group '{description}': {e.code}-{e.message}")
+                raise IOError(f"Unknown error adding members to Group '{group_id}': {error.code}-{error.message}")
         except globus_sdk.NetworkError as error:
-            raise IOError(f"Network issue adding admins to Group '{description}'")
+            raise IOError(f"Network issue adding members to Group '{group_id}'")
 
     # If we have missing members, and we aren't provisioning, bail out.
     if len(missing_members) > 0 and not provision:
@@ -571,13 +571,13 @@ def add_members(
             elif error.http_status in (401, 403):
                 raise PermissionError(group_id)
             if error.http_status == 500:
-                raise IOError(f"Globus API transient error adding admins to Group '{description}'")
+                raise IOError(f"Globus API transient error adding members to Group '{group_id}'")
             else:
-                raise IOError(f"Unknown error adding admins to Group '{description}': {e.code}-{e.message}")
+                raise IOError(f"Unknown error adding members to Group '{group_id}': {error.code}-{error.message}")
         except globus_sdk.NetworkError as error:
-            raise IOError(f"Network issue adding admins to Group '{description}'")
+            raise IOError(f"Network issue adding members to Group '{group_id}'")
         if member_response.http_status != 200:
-            raise IOError(f"Unknown error adding admins to Group '{description}': {e.code}-{e.message}")
+            raise IOError(f"Unknown error adding members to Group '{group_id}': {error.code}-{error.message}")
 
     # All done!
 
