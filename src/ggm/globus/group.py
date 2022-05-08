@@ -46,19 +46,24 @@ def scope_usernames(
 
 def descope_usernames(
     usernames: Collection[str],
-    domain: Optional[str] = None,
+    domain: str,
 ) -> Iterator[str]:
     """De-scope a collection of usernames (removing a domain).
 
     @param usernames The collectin of usernames to be de-scoped.
 
-    @param domain An optional domain to check for.
+    @param domain The domain to remove.
 
     @raise KeyError If the username's domain does not match the expected domain.
+
+    @raise ValueError The domain is not present in the username.
     """
     for username in usernames:
-        (username_user, username_domain) = username.split('@')
-        if domain is not None and username_domain != domain:
+        try:
+            (username_user, username_domain) = username.rsplit('@', maxsplit=1)
+        except ValueError:
+            raise ValueError(username)
+        if username_domain != domain:
             raise KeyError(username)
         yield username_user
 
