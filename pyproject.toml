@@ -92,6 +92,12 @@ gcs = [
     "google-cloud-secret-manager <3.0, >=2.7.0"
 ]
 
+# The `ws` adds the requirements for hosting the GGM web site & API.
+ws = [
+    "flask <3.0, >=2.1.2",
+    "gunicorn <21, >=20.1.0",
+]
+
 # Before we move on, finish up the project metadata tables…
 
 # Each author gets its own [[project.authors]] block
