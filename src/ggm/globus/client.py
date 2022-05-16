@@ -21,8 +21,19 @@
 
 from dataclasses import dataclass
 import globus_sdk
+import logging
 
 from ggm.environ import config
+
+# Set up logging and bring logging functions into this namespace.
+# Also add a Null handler (as we're a library).
+logger = logging.getLogger(__name__)
+debug = logger.debug
+info = logger.info
+warning = logger.warning
+error = logger.error
+exception = logger.exception
+logger.addHandler(logging.NullHandler())
 
 
 @dataclass
@@ -101,6 +112,7 @@ class GlobusServerClients(GlobusClients):
         Look up the Globus Client ID and Secret from the configuration, and
         instantiate Globus Client objects.
         """
+        debug('Creating Globus clients from server config')
         return cls(
             client_id=config['GLOBUS_CLIENT_ID'],
             client_secret=config['GLOBUS_CLIENT_SECRET'],
