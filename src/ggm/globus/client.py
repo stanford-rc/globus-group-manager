@@ -27,8 +27,21 @@ from ggm.environ import config
 
 @dataclass
 class GlobusClients:
+    """A base class containing Globus clients
+
+    This is a base class containing the Globus clients that would be used in
+    both server and user contexts.  It doesn't provide anything directly, other
+    than holding an Auth client and a Groups client.
+
+    This should be subclassed into specialized uses for user and server
+    contexts.
+    """
     auth: globus_sdk.AuthClient
     groups: globus_sdk.GroupsClient
+
+
+@dataclass
+class GlobusServerClients(GlobusClients):
     mapper: globus_sdk.IdentityMap
 
     def __init__(
@@ -82,7 +95,7 @@ class GlobusClients:
     @classmethod
     def from_config(
         cls,
-    ) -> 'GlobusClients':
+    ) -> 'GlobusServerClients':
         """Make Globus Clients from configured ID and Secret.
 
         Look up the Globus Client ID and Secret from the configuration, and

@@ -51,9 +51,9 @@ def create() -> None:
 
     This command is indempotent: If a Scope already exists, it will be skipped.
     """
-    import ggm.globus
+    from ggm.globus.client import GlobusServerClients
     import ggm.scope
-    clients = ggm.globus.GlobusClients.from_config()
+    clients = GlobusServerClients.from_config()
     for (suffix, scope) in ggm.scope.SCOPES.items():
         scope_uri = ggm.scope.uri_for_scope(clients.auth.client_id, suffix)
         if ggm.scope.has_scope_uri(clients.auth, scope_uri):
@@ -86,8 +86,8 @@ def list(
 
     NOTE: This lists scopes even if they have not been created in Globus Auth.
     """
-    import ggm.globus
+    from ggm.globus.client import GlobusServerClients
     import ggm.scope
-    clients = ggm.globus.GlobusClients.from_config()
+    clients = GlobusServerClients.from_config()
     scopes_list = ggm.scope.scopes_as_list(clients.auth.client_id)
     print(delimiter.join(scopes_list))

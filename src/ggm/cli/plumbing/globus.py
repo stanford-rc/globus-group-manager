@@ -24,7 +24,7 @@ import sys
 from typing import Optional
 from uuid import UUID
 
-from ggm.globus.client import GlobusClients
+from ggm.globus.client import GlobusServerClients
 import ggm.globus.group
 
 
@@ -88,7 +88,7 @@ def create(
     error: Optional[Exception]
     try:
         (group_id, error) = ggm.globus.group.create_group(
-            client=ggm.globus.client.GlobusClients.from_config(),
+            client=GlobusServerClients.from_config(),
             name=name,
             description=description,
             high_risk=high_risk,
@@ -115,7 +115,7 @@ def delete(
 ) -> None:
     try:
         ggm.globus.group.delete_group(
-            client=ggm.globus.client.GlobusClients.from_config(),
+            client=GlobusServerClients.from_config(),
             group_id=group,
         )
     except PermissionError:
@@ -133,7 +133,7 @@ def members(
 ) -> None:
     try:
         members=ggm.globus.group.get_members(
-            client=ggm.globus.client.GlobusClients.from_config(),
+            client=GlobusServerClients.from_config(),
             group_id=group,
         )
     except KeyError:
@@ -172,7 +172,7 @@ def add(
     members: set[str] = set(member)
     try:
         members=ggm.globus.group.add_members(
-            client=ggm.globus.client.GlobusClients.from_config(),
+            client=GlobusServerClients.from_config(),
             group_id=group,
             members=members,
             provision=provision,
@@ -203,7 +203,7 @@ def remove(
     members: set[str] = set(member)
     try:
         members=ggm.globus.group.remove_members(
-            client=ggm.globus.client.GlobusClients.from_config(),
+            client=GlobusServerClients.from_config(),
             group_id=group,
             members=members,
         )

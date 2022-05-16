@@ -26,7 +26,7 @@ from uuid import UUID
 
 import globus_sdk
 
-from ggm.globus.client import GlobusClients
+from ggm.globus.client import GlobusServerClients
 from ggm.environ import config
 
 
@@ -70,7 +70,7 @@ def descope_usernames(
 
 # Create a Globus Group
 def create_group(
-    client: GlobusClients,
+    client: GlobusServerClients,
     name: str,
     high_risk: bool,
     additional_admins: Collection[Union[UUID, str]] = list(),
@@ -249,7 +249,7 @@ def create_group(
 
 # Delete a Group.
 def delete_group(
-    client: GlobusClients,
+    client: GlobusServerClients,
     group_id: UUID,
 ) -> None:
     """Try to delete a Globus Group.
@@ -283,7 +283,7 @@ def delete_group(
 
 # Try to delete a Group.  An internal method which raises no exceptions.
 def _try_delete(
-    client: GlobusClients,
+    client: GlobusServerClients,
     group_id: UUID,
 ) -> bool:
     """Try to delete a Globus Group.
@@ -365,7 +365,7 @@ class GroupMembersByLevel(Collection):
 
 
 def get_members(
-    client: GlobusClients,
+    client: GlobusServerClients,
     group_id: UUID,
 ) -> GroupMembersByLevel:
     """Get the membership of a Globus Group.
@@ -439,7 +439,7 @@ def get_members(
 
 
 def add_members(
-    client: GlobusClients,
+    client: GlobusServerClients,
     group_id: UUID,
     members: set[str],
     provision: bool = False,
@@ -583,7 +583,7 @@ def add_members(
 
 
 def remove_members(
-    client: GlobusClients,
+    client: GlobusServerClients,
     group_id: UUID,
     members: set[str],
 ) -> None:
