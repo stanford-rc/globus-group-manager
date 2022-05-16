@@ -23,10 +23,22 @@
 
 from functools import cache
 import globus_sdk
+import logging
 from typing import *
 from uuid import UUID
 
 from ggm.environ import config
+
+# Set up logging and bring logging functions into this namespace.
+# Also add a Null handler (as we're a library).
+logger = logging.getLogger(__name__)
+debug = logger.debug
+info = logger.info
+warning = logger.warning
+error = logger.error
+exception = logger.exception
+logger.addHandler(logging.NullHandler())
+
 
 # These are the types of tuples that hold information about our scopes.
 class DependentScopeURI(NamedTuple):
@@ -81,6 +93,7 @@ def has_scope_uri(
 
     @return True if a scope with that URI exists, else False.
     """
+    debug(f"Checking for scope {uri}")
 
     # Look up our scope
     lookup_response = client.get('/v2/api/scopes',
@@ -92,7 +105,12 @@ def has_scope_uri(
         raise Exception # TODO
     if len(lookup_response['scopes']) > 1:
         raise Exception # TODO
-    return True if len(lookup_response['scopes']) == 1 else False
+    if len(lookup_response['scopes']) == 1:
+        debug(f"Scope already exists")
+        return True
+    else:
+        debug(f"Scope does not exist")
+        return False
 
 
 # Create a scope, given a Globus Auth Client, a Suffix, and scope details.
@@ -111,6 +129,7 @@ def create_scope(
 
     @param scope The details of the Scope to create.
     """
+    debug('In create_scope')
 
     # Prepare a scope request
     scope_request = {
@@ -136,6 +155,7 @@ def create_scope(
 
         elif isinstance(dependent_scope, DependentScopeURI):
             # If we have a Scope URI, we need to convert that into a Scope ID.
+            debug(f"Resolving scope URI {dependent_scope.uri} to UUID")
             lookup_response = client.get('/v2/api/scopes',
                 query_params={'scope_strings': dependent_scope.uri}
             )
@@ -156,6 +176,7 @@ def create_scope(
             return NotImplementedError('Entry in scope.dependent_scopes is unknown type')
 
     # Create the scope
+    info("Registering Scope {suffix}")
     scope_response = client.post(f"/v2/api/clients/{client.client_id}/scopes",
         data={'scope': scope_request},
     )
