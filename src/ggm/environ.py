@@ -22,6 +22,7 @@
 from collections.abc import Mapping
 from dotenv import dotenv_values
 from functools import cache
+import logging
 from os import environ
 from urllib.parse import urlparse
 
@@ -48,6 +49,15 @@ OPTIONAL_ITEMS = (
     'GLOBUS_PREFIX',
 )
 
+# Set up logging and bring logging functions into this namespace.
+# Also add a Null handler (as we're a library).
+logger = logging.getLogger(__name__)
+debug = logger.debug
+info = logger.info
+warning = logger.warning
+error = logger.error
+exception = logger.exception
+logger.addHandler(logging.NullHandler())
 
 # Populate the environment first from the local .env file, then from the OS.
 ENVIRONMENT = {
@@ -100,6 +110,7 @@ class Config(Mapping):
 
         @raise RuntimeError A configuration variable could not be looked up.  See the exception string for more details.
         """
+        debug(f"Getting config item '{item}'")
 
         # Check if we're fetching a valid item.
         if item not in self:
@@ -108,6 +119,7 @@ class Config(Mapping):
         # If we are fetching a static item, return it immediately.
         if item in STATIC_CONFIG_ITEMS:
             return STATIC_CONFIG_ITEMS[item]
+        debug(f"Config item {item} is not static")
 
         # From this point on, we're pulling from the environment, so make sure
         # it's there.
@@ -149,6 +161,7 @@ class Config(Mapping):
         else:
             # For all other schemes (including 'no scheme found'), return the value
             # pulled in from the environment.
+            debug("Returning value from environment")
             return environ_value
 
 
@@ -184,6 +197,7 @@ class Config(Mapping):
 
         @raise IOError I/O Error reading file.
         """
+        debug(f"Fetching secret from file at {path}")
         file = open(
             path,
             mode='r',
@@ -217,6 +231,7 @@ class Config(Mapping):
 
         @raises ImportError Reinstall this package with the 'GCS' option.
         """
+        debug(f"Fetching GCS Project {project} Secret {name} version {version}")
 
         # Import the Secret Manager code and instantiate a client
         import google.cloud.secretmanager
