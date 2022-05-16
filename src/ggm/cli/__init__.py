@@ -24,14 +24,56 @@
 
 
 import click
+import coloredlogs
+import logging
 from typing import *
 
 from ggm.cli.plumbing import plumbing_group
 from ggm.cli.scopes import scopes_group
 
 
+# Set up logging for the CLI
+# We use coloredlogs here, since it integrates well with logging and gives us
+# nice formatting.
+# By default, we limit ourselves to the WARNING level.
+logger = logging.getLogger()
+coloredlogs.install(level=logging.WARNING, logger=logger)
+
+# Effectively disable logging in the libraries we use.
+logging.getLogger('urllib3').setLevel('CRITICAL')
+logging.getLogger('globus_sdk').setLevel('CRITICAL')
+
+
+# Catch instances of -v (or --verbose).
+# Should be called once, with the value being the # of times -v is used.
+def set_verbose(
+    ctx: click.Context,
+    param: click.Option,
+    value: Any,
+) -> None:
+    if param.human_readable_name != 'verbose':
+        raise NotImplementedError('set_verbose only handles verbose')
+    if isinstance(value, int):
+        # Set log level based on how many -v we get
+        if value == 0:
+            pass # This should never be hit, as we won't be called.
+        elif value == 1:
+            coloredlogs.set_level(logging.INFO)
+            logger.info('Log level set to INFO')
+        else: # value >= 2
+            coloredlogs.set_level(logging.DEBUG)
+            logger.debug('Log level set to DEBUG')
+
+
+# Create the root of our command!
 @click.group()
 @click.version_option()
+@click.option(
+    '-v', '--verbose',
+    count=True,
+    callback=set_verbose,
+    expose_value=False,
+)
 def main() -> None:
     pass
 
