@@ -68,6 +68,21 @@ def descope(
 
 
 @globus_group.command()
+def list(
+) -> None:
+    groups = ggm.globus.group.list_groups(
+        client=GlobusServerClients.from_config(),
+    )
+    for group in groups:
+        print(
+            f"{group.id} [{group.member_level.name}] " +
+            ('[-HIGH!-]' if group.high_risk is True else '[LOW/MED]') +
+            f": {group.name}\n" +
+            '\t' +
+            (f"\"{group.description}\"" if group.description is not None else f"No description")
+        )
+
+@globus_group.command()
 @click.option('--high-risk',
     is_flag=True,
     help='Group will be used with High-Risk data',
