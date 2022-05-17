@@ -20,14 +20,24 @@
 
 from collections.abc import Collection, Iterator, Set
 from dataclasses import dataclass
+import globus_sdk
 from itertools import chain
+import logging
 from typing import NamedTuple, Optional, Union
 from uuid import UUID
 
-import globus_sdk
-
 from ggm.globus.client import GlobusServerClients
 from ggm.environ import config
+
+# Set up logging and bring logging functions into this namespace.
+# Also add a Null handler (as we're a library).
+logger = logging.getLogger(__name__)
+debug = logger.debug
+info = logger.info
+warning = logger.warning
+error = logger.error
+exception = logger.exception
+logger.addHandler(logging.NullHandler())
 
 
 # Functions to add or remove domains from Globus Identity Usernames
@@ -112,6 +122,7 @@ def create_group(
 
     @raises IOError Issue communicating with Globus APIs.
     """
+    debug(f"In create_group for {name}")
 
     # Make sure our strings are not empty
     assert(len(name) > 0)
@@ -121,6 +132,7 @@ def create_group(
     # If we have a prefix, add it to the name.
     if config['GLOBUS_PREFIX'] != '':
         real_name = '[' + config['GLOBUS_PREFIX'] + '] ' + name
+        debug(f"Using prefix, new name is {real_name}")
     else:
         real_name = name
 
@@ -132,6 +144,7 @@ def create_group(
         client.mapper.add(admin)
     admin_uuids: set[UUID] = set()
     for admin in additional_admins:
+        info(f"Looking up Globus Identity ID for {admin}")
         try:
             admin_uuids.add(UUID(client.mapper[admin]['id']))
         except KeyError:
@@ -150,6 +163,7 @@ def create_group(
     }
     if description is not None:
         create_request['description'] = description
+    info(f"Creating Globus Group {real_name}")
     try:
         create_response = client.groups.create_group(data=create_request)
     except globus_sdk.GlobusAPIError as e:
@@ -165,6 +179,8 @@ def create_group(
         raise IOError(f"Network issue creating Group '{description}'")
     if create_response.http_status == 201:
         group_id = UUID(create_response['id'])
+        debug('Bare group creation successful')
+        info(f"Globus Group ID {group_id}")
     else:
         raise IOError(f"Unknown error in creation of Group '{description}': {create_response.code}-{create_response.message}")
 
@@ -174,6 +190,7 @@ def create_group(
     # 2. Otherwise, return the Group ID and our exception.
 
     # Set Group policies
+    info("Setting Globus Group policies")
     policy_request = globus_sdk.GroupPolicies(
         is_high_assurance = high_risk,
         group_visibility = globus_sdk.GroupVisibility.private,
@@ -208,9 +225,12 @@ def create_group(
             raise e
         else:
             return (group_id, e)
+    else:
+        debug('Policy set successful')
 
     # If we have any additional admins, add them now.
     if len(admin_uuids) > 0:
+        info("Adding additional administrators")
         admin_request = globus_sdk.BatchMembershipActions()
         admin_request.add_members(
             identity_ids=admin_uuids,
@@ -242,6 +262,8 @@ def create_group(
                 raise e
             else:
                 return (group_id, e)
+        else:
+            debug('Admin add successful')
 
     # Return the group UUID (… and any exceptions that occurred)!
     return (group_id, None)
@@ -264,8 +286,10 @@ def delete_group(
 
     @raises IOError Issue communicating with Globus APIs.
     """
+    info(f"Deleting Globus Group {group_id}")
     try:
         delete_response = client.groups.delete_group(group_id)
+        debug('Deletion successful')
     except globus_sdk.GlobusAPIError as e:
         if e.http_status == 404:
             raise KeyError(group_id)
@@ -294,6 +318,7 @@ def _try_delete(
 
     @return True if the Group is successfully deleted, else False.
     """
+    debug(f"In _try_delete {group_id}")
     try:
         client.groups.delete_group(group_id)
         return True
@@ -390,6 +415,7 @@ def get_members(
 
     @raise IOError Issue communicating with Globus APIs.
     """
+    debug(f"Fetching membership for Group {group_id}")
 
     # Get the Group, including the list of members
     try:
@@ -431,6 +457,7 @@ def get_members(
             raise TypeError('Unknown type ' + person['role'] + ' for ' + person['username'])
 
     # We've finished going through users, let's build and return our response!
+    debug(f"Found {len(members)} member(s), {len(managers)} manager(s), {len(admins)} admin(s)")
     return GroupMembersByLevel(
         admins = frozenset(admins),
         managers = frozenset(managers),
@@ -462,6 +489,7 @@ def add_members(
 
     @raise IOError Issue communicating with Globus APIs.
     """
+    debug(f"In add_members for Group {group_id}")
 
     # How many additions can we make at once?
     BATCH_SIZE = 100
@@ -479,8 +507,10 @@ def add_members(
     # If we find a member with no Globus Identity ID, possibly bail out.
     for member in members:
         try:
+            debug(f"Looking up {member}")
             member_uuids.append(client.mapper[member]['id'])
         except KeyError:
+            info(f"{member} needs a Globus Account")
             missing_members.append(member)
         except globus_sdk.GlobusAPIError as error:
             if error.http_status in (401, 403):
@@ -498,6 +528,7 @@ def add_members(
 
     # At this point, we either have no missing members, or we're provisioning.
     if len(missing_members) > 0:
+        info(f"Provisioning Globus accounts for {len(missing_members)} people")
         # We're going to have to do all this ourselves, since the Identity
         # Mapper doesn't do provisioning.  That means we'll have to do our own
         # batching.
@@ -506,6 +537,7 @@ def add_members(
 
         # Split up missing_members into batches
         for missing_member in missing_members:
+            debug(f"Adding {missing_member} to provisioning batch")
             next_provision.append(missing_member)
             if len(next_provision) == BATCH_SIZE:
                 provision_batches.append(next_provision)
@@ -518,6 +550,7 @@ def add_members(
         # Do a provisioning lookup for each batch
         for provision_batch in provision_batches:
             try:
+                debug(f"Running provisioning batch of {len(provision_batch)}")
                 provision_response = client.auth.get_identities(
                     usernames=provision_batch,
                     provision=True,
@@ -554,6 +587,7 @@ def add_members(
 
     # Go through each batch, submitting requests!
     for batch in batches:
+        debug(f"Running add batch of {len(batch)}")
         # Create a request document.
         member_request = globus_sdk.BatchMembershipActions()
         member_request.add_members(
@@ -606,6 +640,7 @@ def remove_members(
 
     @raise IOError Issue communicating with Globus APIs.
     """
+    debug(f"In remove_members for Group {group_id}")
 
     # How many additions can we make at once?
     BATCH_SIZE = 100
@@ -621,6 +656,7 @@ def remove_members(
     # Get UUIDs for all members, and identify members with no UUID.
     for member in members:
         try:
+            debug(f"Looking up {member}")
             member_uuids.append(client.mapper[member]['id'])
         except KeyError:
             raise KeyError(member)
@@ -650,6 +686,7 @@ def remove_members(
     # Go through each batch, submitting requests!
     for batch in batches:
         # Create a request document.
+        debug(f"Running remove batch of {len(batch)}")
         member_request = globus_sdk.BatchMembershipActions()
         member_request.remove_members(
             identity_ids=batch,
