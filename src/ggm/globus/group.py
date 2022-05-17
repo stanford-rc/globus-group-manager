@@ -613,7 +613,36 @@ def add_members(
         if member_response.http_status != 200:
             raise IOError(f"Unknown error adding members to Group '{group_id}': {error.code}-{error.message}")
 
-    # All done!
+        # Make sure we processed all entries
+        members_added = len(member_response['add'])
+        members_errored = 0 if 'errors' not in member_response else len(member_response['errors']['add'])
+        if members_added + members_errored != len(batch):
+            warning(
+                f"Batch had {len(batch)} entries, {members_added} added, and "
+                f"{members_errored} errors.  Does not add up!"
+            )
+        if members_errored > 0:
+            debug(f"Batch had {members_errored} errors")
+
+            # "Already Active" errors are OK
+            for member_errored in member_response['errors']['add']:
+                if member_errored['code'] == 'ALREADY_ACTIVE':
+                    debug(
+                            'Skipping already active member ' +
+                            client.mapper[member_errored['identity_id']]['username']
+                        )
+                else:
+                    warning(
+                        'Add of member ' +
+                        client.mapper[member_errored['identity_id']]['username'] +
+                        ' had error: [' + member_errored['code'] + '] ' +
+                        member_errored['detail']
+
+                    )
+
+        # Done processing this batch of new members
+
+    # Done processing new members!
 
 
 def remove_members(
@@ -709,5 +738,33 @@ def remove_members(
             raise IOError(f"Network issue removing users from Group '{group_id}'")
         if member_response.http_status != 200:
             raise IOError(f"Unknown error removing users from Group '{group_id}': {error.code}-{error.message}")
+
+        # Make sure we processed all entries
+        members_removed = len(member_response['remove'])
+        members_errored = 0 if 'errors' not in member_response else len(member_response['errors']['remove'])
+        if members_removed + members_errored != len(batch):
+            warning(
+                f"Batch had {len(batch)} entries, {members_removed} removed, and "
+                f"{members_errored} errors.  Does not add up!"
+            )
+        if members_errored > 0:
+            debug(f"Batch had {members_errored} errors")
+
+            # "Cannot remove non-active" errors are OK
+            for member_errored in member_response['errors']['remove']:
+                if member_errored['code'] == 'REMOVE_NON_ACTIVE_FORBIDDEN':
+                    debug(
+                            'Skipping already removed member ' +
+                            client.mapper[member_errored['identity_id']]['username']
+                        )
+                else:
+                    warning(
+                        'Removal of member ' +
+                        client.mapper[member_errored['identity_id']]['username'] +
+                        ' had error: [' + member_errored['code'] + '] ' +
+                        member_errored['detail']
+                    )
+
+        # Done processing this batch of removed members
 
     # All done!
