@@ -20,13 +20,14 @@
 
 from collections.abc import Collection, Iterator, Set
 from dataclasses import dataclass
+import enum
 import globus_sdk
 from itertools import chain
 import logging
 from typing import NamedTuple, Optional, Union
 from uuid import UUID
 
-from ggm.globus.client import GlobusServerClients
+from ggm.globus.client import GlobusClients, GlobusServerClients
 from ggm.environ import config
 
 # Set up logging and bring logging functions into this namespace.
@@ -76,6 +77,75 @@ def descope_usernames(
         if username_domain != domain:
             raise KeyError(username)
         yield username_user
+
+
+# List the Globus Groups where the client is any kind of member.
+class MemberType(enum.IntEnum):
+    MEMBER = 0
+    MANAGER = 1
+    ADMIN = 2
+
+class GlobusGroup(NamedTuple):
+    id: UUID
+    name: str
+    description: Optional[str]
+    high_risk: bool
+    member_level: MemberType
+
+def list_groups(
+    client: GlobusClients,
+) -> set[GlobusGroup]:
+    """Get a list of Globus Groups where the client is a member.
+
+    @raises IOError Issue communicating with Globus APIs.
+    """
+    debug(f"In list_groups")
+
+    # This is an easy request to make!
+    try:
+        groups_response = client.groups.get_my_groups()
+    except globus_sdk.GlobusAPIError as e:
+        if e.http_status == 500:
+            raise IOError(f"Globus API transient error looking up {admin}")
+        else:
+            raise IOError(f"Unknown error looking up {admin}: {e.code}-{e.message}")
+    except globus_sdk.NetworkError as e:
+        raise IOError(f"Network issue looking up {admin}")
+
+    # Go through each group and make the responses
+    result: set[GlobusGroup] = set()
+    for group in groups_response.data:
+        debug(f"Found Group {group['id']}")
+        # Start by capturing the basic stuff
+        details = {
+            'id': UUID(group['id']),
+            'name': group['name'],
+            'description': group['description'],
+            'high_risk': True if group['policies']['is_high_assurance'] is True else False,
+        }
+
+        # Check memberships to see what our level is
+        member_level = MemberType.MEMBER
+        for membership in group['my_memberships']:
+            # Loop through all memberships.  If we are only a member, meh, skip.
+            # If we are a manager, then log that ONLY IF we aren't an admin.
+            # If we are an admin, then log that.
+            if membership['role'] == 'admin':
+                debug('Client identity is an admin')
+                member_level = MemberType.ADMIN
+            elif membership['role'] == 'manager' and member_level != MemberType.ADMIN:
+                debug('Client identity is a manager')
+                member_level = MemberType.MANAGER
+            else:
+                debug('Client identity is a member')
+        debug(f"Final membership verdict: {member_level.name}")
+        details['member_level'] = member_level
+
+        # Make a Group object and add to the result
+        result.add(GlobusGroup(**details))
+
+    # All done!  Return the final set.
+    return result
 
 
 # Create a Globus Group
