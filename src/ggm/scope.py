@@ -62,8 +62,8 @@ class ScopeInfo(NamedTuple):
 # identified by URI or by UUID.
 SCOPES: Dict[str, ScopeInfo] = {
     'manage_linked_workgroups': ScopeInfo(
-        name = 'Workgroup-linked Globus Groups',
-        description = 'Create and manage Globus Groups linked to Stanford Workgroups',
+        name = 'View and modify Workgroup-linked Globus Groups',
+        description = 'Globus Groups linked to Stanford Workgroups',
         advertised = False,
         allows_refresh_token = True,
         dependent_scopes = (
