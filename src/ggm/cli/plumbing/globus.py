@@ -158,18 +158,26 @@ def members(
     is_flag=True,
     help='Provision unrecognized Identity usernames'
 )
-@click.option('--member', '-m',
-    multiple=True,
-    required=True,
-    help='Globus Identity username of the new member',
-)
 @click.argument('group', type=click.UUID)
 def add(
     group: UUID,
-    member: Collection[str],
     provision: Optional[bool] = False,
 ) -> None:
-    members: set[str] = set(member)
+    members: set[str] = set()
+
+    # Read members from standard input, deduplicating (thanks to set)
+    try:
+        while True:
+            member = input()
+            members.add(member)
+    except EOFError:
+        # EOF signals we're done reading members
+        pass
+    except KeyboardInterrupt:
+        # Control-C means to cancel
+        sys.exit(0)
+
+    # Add members to the group
     try:
         members=ggm.globus.group.add_members(
             client=GlobusServerClients.from_config(),
@@ -190,17 +198,24 @@ def add(
 
 
 @globus_group.command()
-@click.option('--member', '-m',
-    multiple=True,
-    required=True,
-    help='Globus Identity username of the member to remove',
-)
 @click.argument('group', type=click.UUID)
 def remove(
     group: UUID,
-    member: Collection[str],
 ) -> None:
-    members: set[str] = set(member)
+    members: set[str] = set()
+
+    # Read members from standard input, deduplicating (thanks to set)
+    try:
+        while True:
+            member = input()
+            members.add(member)
+    except EOFError:
+        # EOF signals we're done reading members
+        pass
+    except KeyboardInterrupt:
+        # Control-C means to cancel
+        sys.exit(0)
+
     try:
         members=ggm.globus.group.remove_members(
             client=GlobusServerClients.from_config(),
