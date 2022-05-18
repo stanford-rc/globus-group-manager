@@ -134,6 +134,7 @@ class GlobusUserClientsDict(TypedDict):
     token: str
     refresh: Optional[str]
     expires: int
+    last_checked: int
 
 @dataclass
 class GlobusUserClients(GlobusClients):
@@ -144,6 +145,7 @@ class GlobusUserClients(GlobusClients):
     token: str
     refresh_token: Optional[str]
     expires: datetime.datetime
+    last_checked: datetime.datetime
 
     # Client login support method for making Flow Managers
     @staticmethod
@@ -296,6 +298,7 @@ class GlobusUserClients(GlobusClients):
                 tokens[client_id]['expires_at_seconds'],
                 tz=datetime.timezone.utc,
             ),
+            last_checked=datetime.datetime.now(datetime.timezone.utc),
         )
 
     # A logout method!
@@ -340,6 +343,7 @@ class GlobusUserClients(GlobusClients):
         # Clear the refresh token and set expires to now
         self.refresh_token = None
         self.expires = datetime.datetime.now(datetime.timezone.utc)
+        self.last_checked = datetime.datetime.now(datetime.timezone.utc),
 
         # Clear some other fields
         self.user_id = UUID('00000000-0000-0000-0000-000000000000')
@@ -363,6 +367,7 @@ class GlobusUserClients(GlobusClients):
             'token': self.token,
             'refresh': self.refresh_token,
             'expires': int(self.expires.timestamp()),
+            'last_checked': int(self.last_checked.timestamp()),
         }
         return result
 
@@ -400,6 +405,10 @@ class GlobusUserClients(GlobusClients):
             refresh_token=(None if 'refresh' not in src else src['refresh']),
             expires=datetime.datetime.fromtimestamp(
                 src['expires'],
+                tz=datetime.timezone.utc,
+            ),
+            last_checked=datetime.datetime.fromtimestamp(
+                src['last_checked'],
                 tz=datetime.timezone.utc,
             ),
         )
