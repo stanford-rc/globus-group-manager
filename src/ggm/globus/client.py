@@ -20,10 +20,14 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from dataclasses import dataclass
+import datetime
 import globus_sdk
 import logging
+from typing import Optional
+from uuid import UUID
 
 from ggm.environ import config
+from ggm.scope import scopes_as_list
 
 # Set up logging and bring logging functions into this namespace.
 # Also add a Null handler (as we're a library).
@@ -117,4 +121,150 @@ class GlobusServerClients(GlobusClients):
         return cls(
             client_id=config['GLOBUS_CLIENT_ID'],
             client_secret=config['GLOBUS_CLIENT_SECRET'],
+        )
+
+
+@dataclass
+class GlobusUserClients(GlobusClients):
+    user_id: UUID
+    username: str
+    provider_id: UUID
+    provider_name: str
+    token: str
+    refresh_token: Optional[str]
+    expires: datetime.datetime
+
+    # Client login support method for making Flow Managers
+    @staticmethod
+    def _login_flow(
+        redirect_uri: str,
+        renewable: bool,
+        state: str,
+    ) -> globus_sdk.services.auth.flow_managers.GlobusOAuthFlowManager:
+        """Return a Globus Auth Flow Manager suitable for user authentication.
+
+        This does the work of creating the Flow Manager, since these actions
+        happen at both ends of the OAuth 2.0 flow.
+
+        @param renewable True if refresh tokens are desired.
+
+        @param state An optional string to be checked at the end of the Flow.
+
+        @returens A Flow Manager, suitable for URL and token generation.
+        """
+
+        # Begin by making an Auth Client for our Confidential App
+        client_id = config['GLOBUS_CLIENT_ID']
+        globus_client = globus_sdk.ConfidentialAppAuthClient(
+            client_id=client_id,
+            client_secret=config['GLOBUS_CLIENT_SECRET'],
+        )
+
+        # Return the flow!
+
+        return globus_client.oauth2_start_flow(
+            redirect_uri=redirect_uri,
+            requested_scopes = scopes_as_list(client_id),
+            state=state,
+            refresh_tokens=renewable,
+        )
+
+    # Client login step 1: Get a login URL
+    @staticmethod
+    def login_url(
+        redirect_uri: str,
+        renewable: bool = False,
+        state: str = '_default',
+    ) -> str:
+        """Return a URL for authenticating to Globus.
+
+        @param redirect_uri The URI to send the client after authentication.
+
+        @param renewable True if refresh tokens are desired.
+
+        @param state An optional string to be checked at the end of the Flow.
+        """
+        # Make the Flow Manager
+        flow = GlobusUserClients._login_flow(
+            redirect_uri=redirect_uri,
+            renewable=renewable,
+            state=state,
+        )
+
+        # Return the URL
+        return flow.get_authorize_url()
+
+    # Client login step 2: Convert an authorization code into tokens
+    @classmethod
+    def from_auth_code(
+        cls,
+        code: str,
+        redirect_uri: str,
+        renewable: bool = False,
+        state: str = '_default',
+    ) -> 'GlobusUserClients':
+        """Instantiate clients using an OAuth 2.0 authorization code.
+
+        @param code The Authorization Code.
+
+        @param renewable True if refresh tokens are desired.
+
+        @param state An optional string to be checked at the end of the Flow.
+        """
+
+        # TODO: Handle renewable tokens
+        if renewable is True:
+            raise NotImplementedError('Renewable tokens')
+
+        # Make the Flow Manager
+        flow = GlobusUserClients._login_flow(
+            redirect_uri=redirect_uri,
+            renewable=renewable,
+            state=state,
+        )
+
+        # Exchange the code
+        try:
+            tokens = flow.exchange_code_for_tokens(code).by_resource_server
+        except Exception:
+            pass # TODO
+
+        # Pull out the Auth token and make a client
+        auth_authorizer = globus_sdk.AccessTokenAuthorizer(
+            tokens['auth.globus.org']['access_token']
+        )
+        auth_client = globus_sdk.AuthClient(
+            authorizer=auth_authorizer,
+        )
+
+        # Pull out the Groups token and make a client
+        groups_authorizer = globus_sdk.AccessTokenAuthorizer(
+            tokens['groups.api.globus.org']['access_token']
+        )
+        groups_client = globus_sdk.GroupsClient(
+            authorizer=groups_authorizer,
+        )
+
+        # Pull out our token
+        client_id = config['GLOBUS_CLIENT_ID']
+        ggm_token = tokens[client_id]['access_token']
+        ggm_expires = tokens[client_id]['expires_at_seconds']
+
+        # Use the Auth client to get OIDC information
+        userinfo = auth_client.oauth2_userinfo().data
+
+        # Make and return the instance!
+        return cls(
+            auth=auth_client,
+            groups=groups_client,
+            user_id=UUID(userinfo['sub']),
+            username=userinfo['preferred_username'],
+            provider_id=UUID(userinfo['identity_provider']),
+            provider_name=userinfo['identity_provider_display_name'],
+            token=ggm_token,
+            refresh_token=None,
+            expires=datetime.datetime.fromtimestamp(
+                tokens[client_id]['expires_at_seconds'],
+                tz=datetime.timezone.utc,
+            ),
         )
