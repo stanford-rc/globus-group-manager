@@ -29,6 +29,7 @@ from urllib.parse import urlparse
 
 # This is the list of configuration variables we recognize.
 CONFIG_ITEMS = (
+    'APP_SECRET',
     'WORKGROUP_STEM',
     'WORKGROUP_API_URL',
     'WORKGROUP_API_KEY',
