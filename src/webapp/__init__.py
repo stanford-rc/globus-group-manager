@@ -92,7 +92,9 @@ except ValueError:
 
 @app.route('/')
 def hello():
-    return "Hello!"
+    return render_template('hello.html',
+        name=(session['clients'].username if 'clients' in session else None)
+    )
 
 @app.route('/login', methods=['GET'])
 def login_begin():
