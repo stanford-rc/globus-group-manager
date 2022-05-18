@@ -5,6 +5,10 @@
 # See https://packaging.python.org/en/latest/guides/using-manifest-in/ to learn
 # what things are included in source distributions by default.
 
+# Include webapp static content and templates
+recursive-include src/webapp/static *
+recursive-include src/webapp/templates *
+
 # Include documentation with the source distribution
 # (but don't include build artifacts)
 recursive-include docs *
