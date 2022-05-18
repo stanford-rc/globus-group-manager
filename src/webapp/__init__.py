@@ -19,7 +19,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import flask
-from flask import abort, Flask, redirect, render_template, request, session, url_for
+from flask import abort, Flask, g, redirect, render_template, request, session, url_for
 from flask.logging import default_handler
 import json
 import logging
@@ -104,12 +104,27 @@ except ValueError:
     app.logger.warning('Generating one-time session key')
     app.secret_key = secrets.token_bytes()
 
+# Set a before-request to check if the user is logged in.
+@app.before_request
+def is_logged_in() -> None:
+    # Make sure at least something is in g
+    g.clients = None
+
+    # If we have a client object, and it's logged in, put it into g
+    if 'clients' in session:
+        if session['clients'].is_logged_in():
+            g.clients = session['clients']
+        else:
+            # We have clients, but not logged in, so clean them up
+            del session['clients']
+
 # Time to actually route traffic!
 
 @app.route('/')
 def hello():
+    # If we have clients, check if they're valid
     return render_template('hello.html',
-        name=(session['clients'].username if 'clients' in session else None)
+        name=(g.clients.username if g.clients is not None else None)
     )
 
 @app.route('/login', methods=['GET'])
