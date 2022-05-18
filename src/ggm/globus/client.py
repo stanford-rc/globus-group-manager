@@ -168,6 +168,7 @@ class GlobusUserClients(GlobusClients):
 
         # Begin by making an Auth Client for our Confidential App
         client_id = config['GLOBUS_CLIENT_ID']
+        debug(f"Creating OAuth 2.0 Auth Code Flow Manager for client {client_id}")
         globus_client = globus_sdk.ConfidentialAppAuthClient(
             client_id=client_id,
             client_secret=config['GLOBUS_CLIENT_SECRET'],
@@ -197,6 +198,8 @@ class GlobusUserClients(GlobusClients):
 
         @param state An optional string to be checked at the end of the Flow.
         """
+        debug(f"Login Step 1 with state '{state}', redirecting to {redirect_uri}")
+
         # Make the Flow Manager
         flow = GlobusUserClients._login_flow(
             redirect_uri=redirect_uri,
@@ -236,6 +239,7 @@ class GlobusUserClients(GlobusClients):
 
         @raise FileNotFoundError A login was made with the wrong domain.
         """
+        debug(f"Login Step 2 with state '{state}'")
 
         # TODO: Handle renewable tokens
         if renewable is True:
@@ -285,6 +289,7 @@ class GlobusUserClients(GlobusClients):
             raise FileNotFoundError(f"{username} domain {username_domain} is not the required domain {config['DOMAIN']}")
 
         # Make and return the instance!
+        info(f"Login successful for {username}!")
         return cls(
             auth=auth_client,
             groups=groups_client,
@@ -321,6 +326,7 @@ class GlobusUserClients(GlobusClients):
             self.expires <= now
         ):
             return
+        info(f"Logging out user {self.username}!")
 
         # Assemble a list of tokens to revoke
         tokens: set(str) = set((
@@ -356,6 +362,7 @@ class GlobusUserClients(GlobusClients):
     # Methods for converting to/from dict
 
     def to_dict(self) -> dict:
+        debug(f"In to_dict for user {self.username}")
         # Assemble a dict, in a way type-checkers can handle.
         result: GlobusUserClientsDict = {
             'auth': self.auth.authorizer.access_token,
@@ -376,6 +383,7 @@ class GlobusUserClients(GlobusClients):
         cls,
         src: GlobusUserClientsDict
     ) -> 'GlobusUserClients':
+        debug(f"In from_dict for user {src['username']}")
 
         # Pull out the Auth token and make a client
         auth_authorizer = globus_sdk.AccessTokenAuthorizer(
