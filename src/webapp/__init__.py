@@ -20,7 +20,10 @@
 
 import flask
 from flask import abort, Flask, redirect, render_template, request, session, url_for
+from flask.logging import default_handler
 import json
+import logging
+import os
 import secrets
 from typing import Any, cast
 import urllib.parse
@@ -72,6 +75,18 @@ class JSONDecoder(flask.json.JSONDecoder):
 # Install the JSON encoder & decoder
 app.json_encoder = JSONEncoder
 app.json_decoder = JSONDecoder
+
+# Set up the root logger's log level
+root_logger = logging.getLogger()
+if 'LOG_LEVEL' in os.environ:
+    root_logger.setLevel(os.environ['LOG_LEVEL'])
+# Make Flask's handler the default handler for everything
+app.logger.removeHandler(default_handler)
+root_logger.addHandler(default_handler)
+
+# Effectively disable logging in the libraries we use.
+logging.getLogger('urllib3').setLevel('CRITICAL')
+logging.getLogger('globus_sdk').setLevel('CRITICAL')
 
 # Set up logging
 logger = app.logger
