@@ -268,3 +268,35 @@ class GlobusUserClients(GlobusClients):
                 tz=datetime.timezone.utc,
             ),
         )
+
+    # A logout method!
+    def logout(self) -> None:
+        # Assemble a list of tokens to revoke
+        tokens: set(str) = set((
+            self.auth.authorizer.access_token,
+            self.groups.authorizer.access_token,
+            self.token,
+        ))
+
+        # Add the refresh token, if we have one
+        if self.refresh_token is not None:
+            tokens.add(self.refresh_token)
+
+        # Get a server Auth client
+        server_auth = GlobusServerClients.from_config().auth
+
+        # Do the revocations
+        for token in tokens:
+            server_auth.oauth2_revoke_token(token)
+
+        # Clear the refresh token and set expires to now
+        self.refresh_token = None
+        self.expires = datetime.datetime.now(datetime.timezone.utc)
+
+        # Clear some other fields
+        self.user_id = UUID('00000000-0000-0000-0000-000000000000')
+        self.username = 'LOGGED_OUT@example.com'
+        self.provider_id = self.user_id
+        self.provider_name = 'LOGGED OUT'
+
+        # All done!
