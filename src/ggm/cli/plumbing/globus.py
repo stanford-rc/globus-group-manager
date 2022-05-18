@@ -24,6 +24,7 @@ import sys
 from typing import Optional
 from uuid import UUID
 
+from ggm.cli.util import get_user_clients
 from ggm.globus.client import GlobusServerClients
 import ggm.globus.group
 
@@ -68,10 +69,19 @@ def descope(
 
 
 @globus_group.command()
+@click.option('--user',
+    is_flag=True,
+    help='Run this command as a user',
+)
 def list(
+    user: bool,
 ) -> None:
+    if not user:
+        client = GlobusServerClients.from_config()
+    else:
+        client = get_user_clients()
     groups = ggm.globus.group.list_groups(
-        client=GlobusServerClients.from_config(),
+        client=client
     )
     for group in groups:
         print(
