@@ -102,7 +102,9 @@ class Config(Mapping):
 
         @param item The configuration item to return.
 
-        @raise KeyError The configuration item is not recognized or not present in the OS environment.
+        @raise KeyError The configuration item is not recognized.
+
+        @raise ValueError The configuration item is not present in the environment.
 
         @raise ImportError An optional package is required.
 
@@ -127,7 +129,7 @@ class Config(Mapping):
             if item in OPTIONAL_ITEMS:
                 return ''
             else:
-                raise KeyError(f"{item} not in environment")
+                raise ValueError(f"{item} not in environment")
 
         environ_value = ENVIRONMENT[item]
         environ_urlparsed = urlparse(environ_value, allow_fragments=False)
