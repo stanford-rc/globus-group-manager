@@ -300,6 +300,18 @@ class GlobusUserClients(GlobusClients):
 
     # A logout method!
     def logout(self) -> None:
+        """Log out the user.
+
+        This logs out the user by invalidating all tokens and setting instance
+        attributes to values which should clearly indicate that the user has
+        been logged out.
+
+        .. note:: This does not log the user out of Globus.
+        """
+        # If our User ID is the null UUID, we're already logged out.
+        if self.user_id == UUID('00000000-0000-0000-0000-000000000000'):
+            return
+
         # Assemble a list of tokens to revoke
         tokens: set(str) = set((
             self.auth.authorizer.access_token,
