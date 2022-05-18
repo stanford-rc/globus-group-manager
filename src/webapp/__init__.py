@@ -179,7 +179,10 @@ def login_end():
     except Exception:
         exception('Error exchanging code for tokens')
         abort(401)
+
+    # Add this to the session, and to g!
     session['clients'] = clients
+    g.clients = session['clients']
 
     # Send the user along!
     if 'login_url' in session:
