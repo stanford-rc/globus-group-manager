@@ -203,7 +203,9 @@ class GlobusUserClients(GlobusClients):
         )
 
         # Return the URL
-        return flow.get_authorize_url()
+        return flow.get_authorize_url(query_params={
+            'session_required_single_domain': config['DOMAIN'],
+        })
 
     # Client login step 2: Convert an authorization code into tokens
     @classmethod
@@ -216,11 +218,20 @@ class GlobusUserClients(GlobusClients):
     ) -> 'GlobusUserClients':
         """Instantiate clients using an OAuth 2.0 authorization code.
 
+        Given an authorization code, plus other parameters set up at the start
+        of the Flow, get tokens from Globus Auth and use them to instantiate
+        our class.
+
+        This also checks the domain of the authenticated user against our
+        server-configured domain.
+
         @param code The Authorization Code.
 
         @param renewable True if refresh tokens are desired.
 
         @param state An optional string to be checked at the end of the Flow.
+
+        @raise FileNotFoundError A login was made with the wrong domain.
         """
 
         # TODO: Handle renewable tokens
@@ -264,12 +275,18 @@ class GlobusUserClients(GlobusClients):
         # Use the Auth client to get OIDC information
         userinfo = auth_client.oauth2_userinfo().data
 
+        # Extract the username, and check against our domain
+        username = userinfo['preferred_username']
+        username_domain = username.rsplit('@', 1)[1]
+        if username_domain != config['DOMAIN']:
+            raise FileNotFoundError(f"{username} domain {username_domain} is not the required domain {config['DOMAIN']}")
+
         # Make and return the instance!
         return cls(
             auth=auth_client,
             groups=groups_client,
             user_id=UUID(userinfo['sub']),
-            username=userinfo['preferred_username'],
+            username=username,
             provider_id=UUID(userinfo['identity_provider']),
             provider_name=userinfo['identity_provider_display_name'],
             token=ggm_token,
