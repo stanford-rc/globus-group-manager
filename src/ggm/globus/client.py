@@ -205,6 +205,7 @@ class GlobusUserClients(GlobusClients):
         # Return the URL
         return flow.get_authorize_url(query_params={
             'session_required_single_domain': config['DOMAIN'],
+            'session_required_mfa': True,
         })
 
     # Client login step 2: Convert an authorization code into tokens
