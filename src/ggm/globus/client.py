@@ -308,8 +308,15 @@ class GlobusUserClients(GlobusClients):
 
         .. note:: This does not log the user out of Globus.
         """
-        # If our User ID is the null UUID, we're already logged out.
-        if self.user_id == UUID('00000000-0000-0000-0000-000000000000'):
+        # What time is it now?
+        now = datetime.datetime.now(datetime.timezone.utc)
+
+        # If our User ID is the null UUID, and we're expired, then we're
+        # already logged out.
+        if (
+            self.user_id == UUID('00000000-0000-0000-0000-000000000000') and
+            self.expires <= now
+        ):
             return
 
         # Assemble a list of tokens to revoke
