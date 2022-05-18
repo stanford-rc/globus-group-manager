@@ -68,6 +68,16 @@ SCOPES: Dict[str, ScopeInfo] = {
         allows_refresh_token = True,
         dependent_scopes = (
             DependentScopeURI(
+                uri='openid',
+                optional=False,
+                requires_refresh_token=False,
+            ),
+            DependentScopeURI(
+                uri='profile',
+                optional=False,
+                requires_refresh_token=False,
+            ),
+            DependentScopeURI(
                 uri='urn:globus:auth:scope:groups.api.globus.org:all',
                 optional=False,
                 requires_refresh_token=False,
