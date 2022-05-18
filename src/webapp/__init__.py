@@ -133,6 +133,10 @@ def login_begin():
     state = secrets.token_urlsafe()
     session['login_state'] = state
 
+    # If we have a URL to send the client to after login, save it in session.
+    if 'login_url' in request.args:
+        session['login_url'] = urllib.parse.quote(request.args['login_url'])
+
     # Get our /login/complete URL
     redirect_url = url_for('login_end', _external=True)
 
@@ -186,7 +190,9 @@ def login_end():
 
     # Send the user along!
     if 'login_url' in session:
-        login_url = session['login_url']
+        login_url = urllib.parse.unquote(
+            session['login_url'],
+        )
         del session['login_url']
     else:
         login_url = url_for('hello', _external=True)
