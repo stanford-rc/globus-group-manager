@@ -23,6 +23,7 @@ from flask import abort, Flask, redirect, render_template, request, session, url
 import json
 import secrets
 from typing import Any, cast
+import urllib.parse
 
 from ggm.globus.client import GlobusUserClients, GlobusUserClientsDict
 from ggm.environ import config
@@ -164,8 +165,30 @@ def logout():
     # Do we have any clients?
     if 'clients' in session:
         info(f"Logout for {session['clients'].username}")
+
+        # Start by logging out the user and deleting from the session
         session['clients'].logout()
         del session['clients']
+
+        # Send them to Globus to finish logout
+        globus_logout_url = 'https://auth.globus.org/v2/web/logout'
+        globus_logout_query = {
+            'client_id': config['GLOBUS_CLIENT_ID'],
+            'redirect_uri': url_for('hello', _external=True),
+            'redirect_name': 'Globus Group Manager',
+        }
+        globus_logout_query_string = urllib.parse.urlencode(
+            globus_logout_query,
+            encoding='utf-8',
+            quote_via=urllib.parse.quote,
+            safe='',
+        )
+
+        # Do the redirect!
+        return redirect(
+            globus_logout_url + '?' + globus_logout_query_string
+        )
     else:
+        # If they're already logged out, just send them home.
         debug('Logout called for no user')
-    return redirect(url_for('hello'))
+        return redirect(url_for('hello'))
