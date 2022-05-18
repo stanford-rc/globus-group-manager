@@ -76,18 +76,19 @@ class GlobusServerClients(GlobusClients):
         )
 
         # Start with the Globus Auth.  Get authorizer and make client.
+        self.auth = globus_client
         #globus_auth_auth = globus_sdk.ClientCredentialsAuthorizer(
         #    confidential_client=globus_client,
         #    scopes=globus_sdk.scopes.AuthScopes.view_identities,
         #)
-        globus_auth_auth = globus_sdk.BasicAuthorizer(
-            username=client_id,
-            password=client_secret,
-        )
-        self.auth = globus_sdk.AuthClient(
-            client_id=client_id,
-            authorizer=globus_auth_auth,
-        )
+        #globus_auth_auth = globus_sdk.BasicAuthorizer(
+        #    username=client_id,
+        #    password=client_secret,
+        #)
+        #self.auth = globus_sdk.AuthClient(
+        #    client_id=client_id,
+        #    authorizer=globus_auth_auth,
+        #)
 
         # Do the same 
         globus_groups_auth = globus_sdk.ClientCredentialsAuthorizer(
