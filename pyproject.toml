@@ -117,7 +117,7 @@ ws = [
 
 [tool.setuptools]
 package-dir = {"" = "src"}
-packages = ["ggm"]
+packages = ["ggm", "webapp"]
 
 # There are data files which need to be included in the package.
 # But NOTE: include-package-data is now True by default!
