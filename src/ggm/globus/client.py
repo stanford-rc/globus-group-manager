@@ -23,7 +23,7 @@ from dataclasses import dataclass
 import datetime
 import globus_sdk
 import logging
-from typing import Optional
+from typing import Optional, TypedDict
 from uuid import UUID
 
 from ggm.environ import config
@@ -123,6 +123,17 @@ class GlobusServerClients(GlobusClients):
             client_secret=config['GLOBUS_CLIENT_SECRET'],
         )
 
+
+class GlobusUserClientsDict(TypedDict):
+    auth: str
+    groups: str
+    user_id: str
+    username: str
+    provider_id: str
+    provider_name: str
+    token: str
+    refresh: Optional[str]
+    expires: int
 
 @dataclass
 class GlobusUserClients(GlobusClients):
@@ -300,3 +311,58 @@ class GlobusUserClients(GlobusClients):
         self.provider_name = 'LOGGED OUT'
 
         # All done!
+
+    # Methods for converting to/from dict
+
+    def to_dict(self) -> dict:
+        # Assemble a dict, in a way type-checkers can handle.
+        result: GlobusUserClientsDict = {
+            'auth': self.auth.authorizer.access_token,
+            'groups': self.groups.authorizer.access_token,
+            'user_id': str(self.user_id),
+            'username': self.username,
+            'provider_id': str(self.provider_id),
+            'provider_name': self.provider_name,
+            'token': self.token,
+            'refresh': self.refresh_token,
+            'expires': int(self.expires.timestamp()),
+        }
+        return result
+
+    @classmethod
+    def from_dict(
+        cls,
+        src: GlobusUserClientsDict
+    ) -> 'GlobusUserClients':
+
+        # Pull out the Auth token and make a client
+        auth_authorizer = globus_sdk.AccessTokenAuthorizer(
+            src['auth'],
+        )
+        auth_client = globus_sdk.AuthClient(
+            authorizer=auth_authorizer,
+        )
+
+        # Pull out the Groups token and make a client
+        groups_authorizer = globus_sdk.AccessTokenAuthorizer(
+            src['groups'],
+        )
+        groups_client = globus_sdk.GroupsClient(
+            authorizer=groups_authorizer,
+        )
+
+        # Make and return the instance
+        return cls(
+            auth=auth_client,
+            groups=groups_client,
+            user_id=UUID(src['user_id']),
+            username=src['username'],
+            provider_id=UUID(src['provider_id']),
+            provider_name=src['provider_name'],
+            token=src['token'],
+            refresh_token=(None if 'refresh' not in src else src['refresh']),
+            expires=datetime.datetime.fromtimestamp(
+                src['expires'],
+                tz=datetime.timezone.utc,
+            ),
+        )
