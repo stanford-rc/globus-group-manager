@@ -41,6 +41,7 @@ CONFIG_ITEMS = (
 
 # This is configuration that is kept in code, as it's very unlikely to change!
 STATIC_CONFIG_ITEMS = {
+    'APP_TOKEN_EXPIRES_EARLY': 600, # Expire a token X seconds in advance
     'APPS_DOMAIN': 'clients.auth.globus.org',
     'DOMAIN': 'stanford.edu',
 }

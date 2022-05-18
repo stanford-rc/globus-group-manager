@@ -306,6 +306,57 @@ class GlobusUserClients(GlobusClients):
             last_checked=datetime.datetime.now(datetime.timezone.utc),
         )
 
+    # Is the user logged in?
+    def is_logged_in(self) -> bool:
+        """Check if a client is still logged in
+
+        @return True if the client is still logged in, else False
+        """
+        debug(f"Login check for {self.username}")
+
+        # If our User ID is the null UUID, we're logged out.
+        if self.user_id == UUID('00000000-0000-0000-0000-000000000000'):
+            debug('Login check for a not-logged-in user')
+            return False
+
+        # What time is it now?
+        now = datetime.datetime.now(datetime.timezone.utc)
+
+        # Has the token expired?
+        if self.expires <= now:
+            info(f"Login check by {self.username} with expired token")
+            self.logout()
+            return False
+        else:
+            # The token isn't expired, but does it expire soon?
+            early_warning_secs = datetime.timedelta(
+                seconds=config['APP_TOKEN_EXPIRES_EARLY'],
+            )
+            remaining_time = self.expires - now
+            if remaining_time <= early_warning_secs:
+                info(
+                    f"Login check by {self.username} expires in " +
+                    f"{str(remaining_time)}, less than {str(early_warning_secs)}"
+                )
+                self.logout()
+                return False
+            else:
+                debug(f"Login check by {self.username} expires in {str(remaining_time)}")
+
+        # OK, so we're not expired yet.  Have we checked recently enough?
+        # if self.check_tokens(force=False) is False: # TODO
+        if True is False:
+            warning(
+                f"Login check by {self.username} has revoked tokens",
+            )
+            self.logout()
+            return False
+
+        # Our tokens have not expired, and we checked them recently.
+        # We are logged in!
+        debug(f"Login check by {self.username} is logged in!")
+        return True
+
     # A logout method!
     def logout(self) -> None:
         """Log out the user.
