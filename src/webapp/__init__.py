@@ -113,6 +113,8 @@ def is_logged_in() -> None:
     # If we have a client object, and it's logged in, put it into g
     if 'clients' in session:
         if session['clients'].is_logged_in():
+            # clients could have been modified by the login check.
+            session.modified = True
             g.clients = session['clients']
         else:
             # We have clients, but not logged in, so clean them up
