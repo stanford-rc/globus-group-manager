@@ -306,6 +306,118 @@ class GlobusUserClients(GlobusClients):
             last_checked=datetime.datetime.now(datetime.timezone.utc),
         )
 
+    # Are tokens valid?
+    def _check_tokens(
+        self,
+        force: bool = False,
+    ) -> bool:
+        """Check with Globus if tokens are still valid.
+
+        This checks with Globus to see if all tokens in an instance are valid,
+        assuming it has been more than APP_TOKEN_CHECK_GRACE seconds since the
+        last check.
+
+        .. note: This does not check for expiration, and we do not trigger a
+        logout if things fail.  Stuff like that is done by `is_logged_in()`.
+
+        @param force If True, do the check regardless of how long it's been since the last check.
+
+        @return True if the tokens are still valid.
+        """
+        debug(f"In token check for {self.username}")
+
+        # Should we check?
+        should_check = False
+
+        # If our User ID is the null UUID, then we know the tokens are invalid.
+        if self.user_id == UUID('00000000-0000-0000-0000-000000000000'):
+            debug('Token check for a not-logged-in user')
+            return False
+
+        # What time is it now?  How long between checks?
+        now = datetime.datetime.now(datetime.timezone.utc)
+        check_grace_secs = datetime.timedelta(
+            seconds=config['APP_TOKEN_CHECK_GRACE'],
+        )
+
+        # Has it been long enough since our last check?
+        time_since_last_check = now - self.last_checked
+        debug(
+            f"Time since last check is {str(time_since_last_check)}, vs. "
+            f"grace period of {str(check_grace_secs)}."
+        )
+        if time_since_last_check >= check_grace_secs:
+            info(f"Due to check tokens for {self.username}")
+            should_check = True
+
+        # If we force, then definitely check
+        if force is True:
+            info(f"Forcing check tokens for {self.username}")
+            should_check = True
+
+        # If we don't need to check, then assume OK!
+        if should_check is False:
+            return True
+
+        # If we're here, we need to check
+
+        # Get a Server Auth client to do the check.
+        auth_client = GlobusServerClients.from_config().auth
+
+        # If we have a refresh token, check that first.
+        can_refresh = False
+        if self.refresh_token is not None:
+            debug('Checking a refresh token')
+            # Hopefully we get a positive response.
+            check_response = auth_client.oauth2_validate_token(
+                self.refresh_token,
+            )
+            if (
+                'active' in check_response.data and
+                check_response.data['active'] is True
+            ):
+                # We have a good refresh token!
+                debug(f"Refresh token for {self.username} is good")
+                can_refresh = True
+            else:
+                # Unfortunately, the check failed
+                info(f"Refresh token for {self.username} is revoked")
+                return False
+
+        # NOTE: is_logged_in() handles an expiration check, which is why we
+        # don't do that here.
+
+        # Now, build the list of access tokens to check
+        tokens: set(str) = set((
+            self.auth.authorizer.access_token,
+            self.groups.authorizer.access_token,
+            self.token,
+        ))
+
+        # Check each token!
+        for token in tokens:
+            # This time, we're looking for a negative response.
+            check_response = auth_client.oauth2_validate_token(
+                token,
+            )
+            if (
+                'active' not in check_response.data or
+                check_response.data['active'] is False
+            ):
+                # We found a token that is not valid.
+                # If we can refresh, do so now.  Else we're dead.
+                if can_refresh:
+                    debug('Found a revoked token, doing refresh')
+                    pass # TODO: Trigger refresh
+                else:
+                    info(f"An access token for {self.username} is revoked")
+                    return False
+
+        # We've checked each token, and all are good!
+        debug(f"All tokens good for {self.username}!")
+        self.last_checked = now
+        return True
+
     # Is the user logged in?
     def is_logged_in(self) -> bool:
         """Check if a client is still logged in
@@ -344,8 +456,7 @@ class GlobusUserClients(GlobusClients):
                 debug(f"Login check by {self.username} expires in {str(remaining_time)}")
 
         # OK, so we're not expired yet.  Have we checked recently enough?
-        # if self.check_tokens(force=False) is False: # TODO
-        if True is False:
+        if self._check_tokens(force=False) is False:
             warning(
                 f"Login check by {self.username} has revoked tokens",
             )
