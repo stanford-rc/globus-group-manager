@@ -23,6 +23,7 @@ import click
 from typing import *
 
 from ggm.cli.plumbing.globus import globus_group
+from ggm.cli.plumbing.workgroup import workgroup_group
 
 
 @click.group('plumbing')
@@ -38,3 +39,4 @@ def plumbing_group() -> None:
 
 
 plumbing_group.add_command(globus_group)
+plumbing_group.add_command(workgroup_group)
