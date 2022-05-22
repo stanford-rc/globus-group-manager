@@ -21,6 +21,7 @@
 import flask
 from flask import abort, Flask, g, redirect, render_template, request, session, url_for
 from flask.logging import default_handler
+from flask_talisman import Talisman
 import json
 import logging
 import os
@@ -103,6 +104,21 @@ try:
 except ValueError:
     app.logger.warning('Generating one-time session key')
     app.secret_key = secrets.token_bytes()
+
+# Set up Talisman (for security-related headers and the like)
+
+# Our Content Security Policy only allows things in the same domain.
+talisman_csp = {
+    'default-src': "'self'",
+    'script-src': "'self'",
+}
+
+# Load the Talisman config!
+Talisman(
+    app,
+    content_security_policy=talisman_csp,
+    content_security_policy_nonce_in=['script-src'],
+)
 
 # Set a before-request to check if the user is logged in.
 @app.before_request
