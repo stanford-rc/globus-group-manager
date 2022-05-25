@@ -1,0 +1,20 @@
+# This is the Dependabot config file!
+# It tells Dependabot what package ecosystems we use, where to find the relevant config
+# files, and how often to check for dependencies that need updates.
+
+version: 2
+updates:
+
+  # We're a Python project, and we use Pip to install.
+  # Hopefully Dependabot is using a new-enough Pip that will pick up on pyproject.toml.
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "daily"
+
+  # We also use GitHub Actions!
+  # NOTE: Setting directory = / will cause Dependabot to look in /.github/workflows
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
