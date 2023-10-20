@@ -19,7 +19,7 @@ jobs:
     steps:
       # As always, start with a checkout.
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: "code"
 
@@ -50,7 +50,7 @@ jobs:
 
       # Check out gh-pages, update, and push
       - name: Checkout gh-pages
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: "gh-pages"
           fetch-depth: 0
