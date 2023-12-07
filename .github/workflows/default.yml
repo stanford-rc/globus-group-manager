@@ -25,7 +25,7 @@ jobs:
 
       # Bring in Python 3.9
       - name: Install Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
           python-version: "3.9"
 
