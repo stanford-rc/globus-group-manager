@@ -95,7 +95,7 @@ gcs = [
 
 # The `ws` adds the requirements for hosting the GGM web site & API.
 ws = [
-    "flask <3.0, >=2.1.2",
+    "flask <3.1, >=3.0.3",
     "gunicorn <21, >=20.1.0",
 ]
 
