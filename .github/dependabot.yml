@@ -4,15 +4,6 @@ updates:
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
-      interval: "daily"
-    groups:
-      security:
-        applies-to: security-updates
-        patterns:
-          - "*"
-  - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
       interval: "weekly"
     groups:
       updates:
