@@ -111,8 +111,8 @@ Documentation for the head of the currently-active branch may be found at
 Copyright & License
 -------------------
 
-The contents of this repository are © 2022 The Board of Trustees of the Leland
-Stanford Junior University.
+The contents of this repository are © 2022-2025 The Board of Trustees of the
+Leland Stanford Junior University.
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU Affero General Public License as published by the Free
