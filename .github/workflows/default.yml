@@ -72,7 +72,7 @@ jobs:
 
       # With the content installed, commit and push!
       - name: Commit and push gh-pages
-        uses: EndBug/add-and-commit@a94899bca583c204427a224a7af87c02f9b325d5
+        uses: EndBug/add-and-commit@b5fc3de01ef5614aa38ef8d911f023b0a7a04dca
         with:
           cwd: 'gh-pages'
           add: '.'
