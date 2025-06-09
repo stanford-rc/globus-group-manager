@@ -1,0 +1,51 @@
+# vim: ts=2 sw=2 et
+
+# On every push, and on every PR, do come checks.
+#
+# We do the following things:
+# * Run CodeQL
+
+name: Run CodeQL 
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  codeql:
+    name: Run CodeQL on ubuntu-latest & Python 3.13
+    runs-on: ubuntu-latest
+
+    permissions:
+      security-events: write
+
+    steps:
+    - name: Install non-Python dependencies (Ubuntu)
+      run: |
+        true
+
+    - name: Check out code
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+    - name: Set up Python
+      uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55
+      with:
+        python-version: "3.13"
+        cache: 'pip'
+
+    - name: Install dependencies for testing
+      run: |
+        pip install .
+
+    - name: CodeQL Init
+      uses: github/codeql-action/init@1b549b9259bda1cb5ddde3b41741a82a2d15a841
+      with:
+        languages: python
+
+    - name: CodeQL Analyze
+      uses: github/codeql-action/analyze@1b549b9259bda1cb5ddde3b41741a82a2d15a841
+      with:
+        category: "/language:python"
