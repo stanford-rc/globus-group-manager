@@ -1,0 +1,29 @@
+# vim: ts=2 sw=2 et
+
+# On every push, and on every PR, do come checks.
+#
+# We do the following things:
+# * Check for any no-commit things.
+
+name: Check for no-commit flags
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  nocommit:
+    name: Check No-commit
+    runs-on: ubuntu-latest
+
+    steps:
+      # This is v4 of the action
+    - name: Check out code
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+    # This is v2 of the action
+    - name: Check for N.O.C.O.M.M.I.T in the commits
+      uses: nobssoftware/nocommit@e4be6eb73ee96af2ade61ac54cdd3f5852714530
