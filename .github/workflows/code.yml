@@ -31,7 +31,7 @@ jobs:
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
     - name: Set up Python
-      uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55
+      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
       with:
         python-version: "3.13"
         cache: 'pip'
@@ -41,11 +41,11 @@ jobs:
         pip install .
 
     - name: CodeQL Init
-      uses: github/codeql-action/init@1b549b9259bda1cb5ddde3b41741a82a2d15a841
+      uses: github/codeql-action/init@ce28f5bb42b7a9f2c824e633a3f6ee835bab6858
       with:
         languages: python
 
     - name: CodeQL Analyze
-      uses: github/codeql-action/analyze@1b549b9259bda1cb5ddde3b41741a82a2d15a841
+      uses: github/codeql-action/analyze@ce28f5bb42b7a9f2c824e633a3f6ee835bab6858
       with:
         category: "/language:python"
