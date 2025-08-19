@@ -41,11 +41,11 @@ jobs:
         pip install .
 
     - name: CodeQL Init
-      uses: github/codeql-action/init@76621b61decf072c1cee8dd1ce2d2a82d33c17ed
+      uses: github/codeql-action/init@96f518a34f7a870018057716cc4d7a5c014bd61c
       with:
         languages: python
 
     - name: CodeQL Analyze
-      uses: github/codeql-action/analyze@76621b61decf072c1cee8dd1ce2d2a82d33c17ed
+      uses: github/codeql-action/analyze@96f518a34f7a870018057716cc4d7a5c014bd61c
       with:
         category: "/language:python"
