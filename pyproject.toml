@@ -65,7 +65,7 @@ requires-python = "<4.0, >=3.13"
 
 # 2: Required dependencies.
 dependencies = [
-    "click <8.3, >=8.2.1",
+    "click >=8.2.1, <8.4",
     "coloredlogs <16.0, >=15.0.1",
     "cryptography >=37.0.2",
     "python-dotenv <1.2, >=1.1.0",
