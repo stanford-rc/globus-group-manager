@@ -26,4 +26,4 @@ jobs:
 
     # This is v2 of the action
     - name: Check for N.O.C.O.M.M.I.T in the commits
-      uses: nobssoftware/nocommit@e4be6eb73ee96af2ade61ac54cdd3f5852714530
+      uses: nobssoftware/nocommit@5c3cf9519fe40b80b0954d254085b67b532a5dc3
