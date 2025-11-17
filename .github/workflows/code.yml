@@ -28,7 +28,7 @@ jobs:
         true
 
     - name: Check out code
-      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
 
     - name: Set up Python
       uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
@@ -41,11 +41,11 @@ jobs:
         pip install .
 
     - name: CodeQL Init
-      uses: github/codeql-action/init@f1f6e5f6af878fb37288ce1c627459e94dbf7d01
+      uses: github/codeql-action/init@014f16e7ab1402f30e7c3329d33797e7948572db
       with:
         languages: python
 
     - name: CodeQL Analyze
-      uses: github/codeql-action/analyze@f1f6e5f6af878fb37288ce1c627459e94dbf7d01
+      uses: github/codeql-action/analyze@014f16e7ab1402f30e7c3329d33797e7948572db
       with:
         category: "/language:python"
