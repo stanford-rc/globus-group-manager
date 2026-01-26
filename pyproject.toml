@@ -65,11 +65,11 @@ requires-python = "<4.0, >=3.13"
 
 # 2: Required dependencies.
 dependencies = [
-    "click <8.3, >=8.2.1",
+    "click >=8.2.1, <8.4",
     "coloredlogs <16.0, >=15.0.1",
     "cryptography >=37.0.2",
-    "python-dotenv <1.2, >=1.1.0",
-    "globus-sdk <4.0, >=3.57.0",
+    "python-dotenv >=1.1.0, <1.3",
+    "globus-sdk >=3.57.0, <5.0",
     "requests <3.0, >=2.32.3",
     "stanford-mais <1.0, >=0.50.1",
 ]
@@ -84,7 +84,7 @@ build = [
 
 # The `docs` option adds support for building docs.
 docs = [
-    "sphinx <8.3, >=8.2.3",
+    "sphinx >=8.2.3, <9.2",
     "sphinx-rtd-theme",
 ]
 
@@ -98,7 +98,7 @@ gcs = [
 ws = [
     "flask <4.0, >=3.1.1",
     "flask-talisman <2.0, >=1.1.0",
-    "gunicorn <24, >=23.0.0",
+    "gunicorn >=23.0.0, <25",
 ]
 
 # Before we move on, finish up the project metadata tables…
